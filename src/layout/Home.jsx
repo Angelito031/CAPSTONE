@@ -1,7 +1,7 @@
 import { useAuthStore } from "../store/store";
 import { useSearchStore } from "../store/store";
 import { Navigate, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import univ from "../assets/univ.jpg";
 import Header from "./Header";
 import Footer from "./Footer";
@@ -10,10 +10,16 @@ import SearchBox from "../components/SearchBox";
 
 
 const Home = () => {
-  const { isAuth } = useAuthStore();
+  const { isAuth, user } = useAuthStore();
   const { searchQuery, setSearchQuery, search } = useSearchStore();
   const navigate = useNavigate();
-  const { isLoading, setIsLoading } = useState(false);
+
+  useEffect(() => {
+    if(user?.role === 'ADMIN'){
+      navigate('/admin/dashboard')
+    }
+  }, [user])  
+  
 
   const handleInputChange = (event) => {
     setSearchQuery(event.target.value);

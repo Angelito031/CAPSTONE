@@ -21,7 +21,6 @@ const ProfileEdit = () => {
     location: "",
     department: "",
     description: "",
-    sex: "",
     contactno: "",
     profile: ""
   });
@@ -34,7 +33,6 @@ const ProfileEdit = () => {
       location: user.location || "",
       department: user.department || "",
       description: user.description || "",
-      sex: user.sex || "",
       contactno: user.contactno || "",
       profile: user.profile || "",
     });
@@ -99,22 +97,14 @@ const ProfileEdit = () => {
                     placeholder="Last Name"
                     handleInputChange={handleInputChange}
                   />
-                  <EditInputField
+                </div>
+                <div className="flex lg:flex-row md:flex-col sm:flex-col xs:flex-col gap-2 justify-center w-full">
+                <EditInputField
                     type="text"
                     name="location"
                     id="location"
                     value={credentials.location}
                     placeholder="Location"
-                    handleInputChange={handleInputChange}
-                  />
-                </div>
-                <div className="flex lg:flex-row md:flex-col sm:flex-col xs:flex-col gap-2 justify-center w-full">
-                  <EditSelectField
-                    label="Sex"
-                    name="sex"
-                    id="sex"
-                    options={['Male', 'Female']}
-                    value={credentials.sex}
                     handleInputChange={handleInputChange}
                   />
                   <EditInputField

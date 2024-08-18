@@ -1,17 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/store";
 import univImage from "../assets/univ.jpg";
 import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const { login, servererror, setServerError } = useAuthStore();
+  const { login, servererror, setServerError, user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [isEmpty, setIsEmpty] = useState("");
+  const [role , setRole] = useState("");
   const [credentials, setCredentials] = useState({
     email: "",
     password: "",
   });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setRole(user?.role)
+  }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -38,6 +43,10 @@ const Login = () => {
     if (handleCheck()) {
       await login(credentials);
       if(!servererror){
+        if(role === "ADMIN") {
+          console.log(role)
+          navigate("/admin");
+        }
         navigate("/");
       }
     }
