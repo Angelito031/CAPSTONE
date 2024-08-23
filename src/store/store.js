@@ -1,8 +1,9 @@
 import { create } from "zustand";
 import { createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth, db, storage }  from "../firebase/firebase.js"
-import { collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
+import { collection,  doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { getDownloadURL, uploadBytes, ref } from "firebase/storage";
+import axios from "axios";
 
 const useAuthStore = create((set) => ({
   isAuth: false,
@@ -22,6 +23,7 @@ const useAuthStore = create((set) => ({
       const userRef = doc(db, "users", userCredential.user.uid);
       const userSnapshot = await getDoc(userRef);
       const userData = userSnapshot.data();
+
       if(auth.currentUser.emailVerified){
         set({ user: userData, isAuth: true,  currentUser: auth.currentUser.uid });
       }else{
@@ -134,7 +136,11 @@ const useJobStore = create((set) => ({
 
 const useUserStore = create((set) => ({
   users: [],
+  message: "",
   isFetching: false,
+  success: false,
+  setSuccess: (success) => set({ success }),
+  setMessage: (message) => set({ message }),
   setUsers: (users) => set({ users }),
   fetchUsers: async () => {
     set({ isFetching: true });
@@ -186,6 +192,20 @@ const useUserStore = create((set) => ({
       if (error.code === "auth/requires-recent-login") {
         console.error("The user needs to re-authenticate before this operation can be executed.");
       }
+    }
+  },
+  removeAccount: async (uid, role) => {
+    try {
+      // Only allow deletion if the user is an ADMIN or SADMIN
+      if (role === 'ADMIN' || role === 'SADMIN') {
+        const response =  await axios.delete(`http://127.0.0.1:9000/api/deleteUser/${uid}`); //Change to server url
+
+        set({ success: true, message: response.data });
+      } else {
+        console.log(`User account with ID ${uid} cannot be deleted.`);
+      }
+    } catch (error) {
+      console.error("Failed to delete user account", error.message, error.code);
     }
   }
 }));

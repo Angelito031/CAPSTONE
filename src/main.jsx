@@ -115,6 +115,22 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
   {
+    path: "/admin/table/companies",
+    element: 
+    <ProtectedRoute requiredRole="ADMIN">
+      <AdminTable />
+    </ProtectedRoute>,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/admin/table/jobs",
+    element: 
+    <ProtectedRoute requiredRole="ADMIN">
+      <AdminTable />
+    </ProtectedRoute>,
+    errorElement: <ErrorPage />,
+  },
+  {
     path: "/login",
     element: <Login />,
     errorElement: <ErrorPage />,

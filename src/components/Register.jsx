@@ -6,7 +6,7 @@ const Register = () => {
   const { register, success, setSuccess, servererror, setServerError } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [isEmpty, setIsEmpty] = useState("");
-  const [showModal, setShowModal] = useState(false); // State for modal visibility
+  const [showModal, setShowModal] = useState(false); 
   const navigate = useNavigate();
   const [credentials, setCredentials] = useState({
     firstname: "",
