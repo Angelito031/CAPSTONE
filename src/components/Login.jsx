@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/store";
 import univImage from "../assets/univ.jpg";
 import { Link, useNavigate } from "react-router-dom";
+import React from "react";
 
 const Login = () => {
   const { login, servererror, setServerError, user } = useAuthStore();

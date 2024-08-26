@@ -1,4 +1,5 @@
 import logo from "../assets/udm-logo.jpg"
+import React from "react";
 
 const Footer = () => {
   return (

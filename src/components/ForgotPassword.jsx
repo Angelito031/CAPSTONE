@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useAuthStore } from "../store/store";
 import {FaArrowLeft } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";

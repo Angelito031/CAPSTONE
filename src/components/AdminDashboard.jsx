@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { FaUser, FaBuilding } from 'react-icons/fa';
 import { MdOutlineWork } from 'react-icons/md';
 import StatsCard from './StatsCard';

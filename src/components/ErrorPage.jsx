@@ -1,5 +1,6 @@
 import { useNavigate, useRouteError } from "react-router-dom";
 import { useAuthStore } from "../store/store";
+import React from "react";
 
 const ErrorPage = () => {
   const {logout} = useAuthStore();

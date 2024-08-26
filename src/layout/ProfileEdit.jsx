@@ -2,12 +2,12 @@ import Header from "./Header";
 import Footer from "./Footer";
 import CoverImage from "../components/CoverImage";
 import EditInputField from "../components/EditInputField";
-import EditSelectField from "../components/EditSelectField";
 import EditTextArea from "../components/EditTextArea";
 import { useState, useEffect } from "react";
 import { useUserStore, useAuthStore } from "../store/store";
 import { useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
+import React from "react";
 
 const ProfileEdit = () => {
   const { user, setUser } = useAuthStore();

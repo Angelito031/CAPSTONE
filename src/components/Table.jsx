@@ -1,4 +1,5 @@
 import { useAuthStore, useUserStore } from "../store/store";
+import React from "react";
 
 const Table = ({ data }) => {
     const { removeAccount, fetchUsers } = useUserStore()

@@ -1,3 +1,5 @@
+import React from "react"
+
 const StatsCard = ({ icon: Icon, title, value }) => {
   return (
     <div className="relative p-6 rounded-2xl bg-white shadow dark:bg-gray-800">

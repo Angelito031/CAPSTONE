@@ -7,7 +7,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import TopRecommendation from "../components/TopRecommendation";
 import SearchBox from "../components/SearchBox";
-
+import React from "react";
 
 const Home = () => {
   const { isAuth, user } = useAuthStore();

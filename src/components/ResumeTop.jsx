@@ -1,5 +1,6 @@
 import { useAuthStore } from "../store/store"
 import userdefaultimg from "../assets/user-default-icon.jpg";
+import React from "react";
 
 const ResumeTop = () => {
   const {user} = useAuthStore()

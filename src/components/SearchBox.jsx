@@ -1,4 +1,5 @@
 import {FaSearch} from 'react-icons/fa'
+import React from 'react'
 
 const SearchBox = ({searchQuery, handleInputChange, handleSubmit, wsize}) => {
   return (

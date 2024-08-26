@@ -1,5 +1,6 @@
 import { FaPhoneAlt, FaEnvelope, FaFacebookF, FaTwitter } from 'react-icons/fa';
 import { useAuthStore } from "../store/store"
+import React from 'react'
 
 const ResumeContact = () => {
   const {user} = useAuthStore()

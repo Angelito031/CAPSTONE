@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { useAuthStore } from "../store/store";
+import React from "react";
 
 const ProfileButtons = ( {setIsResumeOpen} ) => {
   const { currentUser } = useAuthStore();

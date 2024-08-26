@@ -1,6 +1,7 @@
 import userdefaultimg from "../assets/user-default-icon.jpg";
 import { useParams } from "react-router-dom";
 import { useAuthStore } from "../store/store";
+import React from "react";
 
 const ProfilePicture = () => {
   const { user, currentUser } = useAuthStore();

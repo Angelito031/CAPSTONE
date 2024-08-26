@@ -1,8 +1,9 @@
 import Sidebar from '../components/Sidebar';
 import Table from '../components/Table';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useUserStore } from '../store/store';
+
 
 const AdminTable = () => {
     const [data, setData] = useState([]);

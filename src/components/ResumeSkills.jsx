@@ -1,4 +1,5 @@
 import { useAuthStore } from "../store/store"
+import React from "react"
 
 const ResumeSkills = () => {
     const {user} = useAuthStore()

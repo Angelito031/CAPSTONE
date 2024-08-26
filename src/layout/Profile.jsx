@@ -7,6 +7,7 @@ import Footer from './Footer';
 import univ from "../assets/univ.jpg";
 import Resume from '../components/Resume';
 import { useState } from 'react';
+import React from 'react';
 
 const Profile = () => {
     const [isResumeOpen, setIsResumeOpen] = useState(false);

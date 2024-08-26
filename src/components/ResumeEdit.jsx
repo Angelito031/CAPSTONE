@@ -1,6 +1,6 @@
 import EditInputField from "../components/EditInputField";
 import EditTextArea from "../components/EditTextArea";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useUserStore, useAuthStore } from "../store/store";
 import { FaPlus, FaTrash, FaArrowLeft } from "react-icons/fa";
 

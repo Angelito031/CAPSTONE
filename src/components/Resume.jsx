@@ -3,7 +3,7 @@ import { useAuthStore } from "../store/store";
 import ResumeTop from './ResumeTop';
 import ResumeMainContent from './ResumeMainContent';
 import ResumeEdit from './ResumeEdit';
-import { useState } from "react";
+import React, { useState } from "react";
 
 const Resume = ( {setIsResumeOpen}) => {
     const { currentUser } = useAuthStore();

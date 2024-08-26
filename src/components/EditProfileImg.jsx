@@ -1,5 +1,6 @@
 import { FaCamera } from 'react-icons/fa';
 import defaulticon from "../assets/user-default-icon.jpg";
+import React from 'react';
 
 const EditProfileImg = ({ userdefaultimg, handleInputChange }) => {
   return (
