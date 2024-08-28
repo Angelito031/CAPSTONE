@@ -1,11 +1,12 @@
-import { FaUser, FaSignOutAlt, FaUserAlt, FaBuilding } from 'react-icons/fa';
+import { FaDatabase, FaSignOutAlt, FaUserAlt, FaBuilding } from 'react-icons/fa';
 import { MdOutlineDashboard, MdOutlineWork } from 'react-icons/md';
 import { useAuthStore } from "../store/store";
 import SidebarItem from './SidebarItem'; 
 import React from 'react';
 
-const Sidebar = () => {
+const Sidebar = ({ setShowModal }) => {
   const { logout } = useAuthStore();
+  
 
   return (
     <div className="min-h-screen flex flex-col antialiased bg-red-800 text-gray-800">
@@ -50,6 +51,7 @@ const Sidebar = () => {
                 <div className="text-sm font-light tracking-wide text-gray-500">Settings</div>
               </div>
             </li>
+            <SidebarItem label="Reset Database" icon={FaDatabase} onClick={() => setShowModal(true)}/>
             <SidebarItem
               label="Logout"
               icon={FaSignOutAlt}
