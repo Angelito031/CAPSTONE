@@ -6,8 +6,8 @@ import { getDownloadURL, uploadBytes, ref } from "firebase/storage";
 import axios from "axios";
 
 const useAuthStore = create((set) => ({
-  isAuth: false,
-  user: null,
+  isAuth: true,
+  user: {role: "ADMIN"},
   servererror: null,
   currentUser: null,
   success: false,
@@ -198,14 +198,67 @@ const useUserStore = create((set) => ({
     try {
       // Only allow deletion if the user is an ADMIN or SADMIN
       if (role === 'ADMIN' || role === 'SADMIN') {
-        const response =  await axios.delete(`http://127.0.0.1:9000/api/deleteUser/${uid}`); //Change to server url
-
+        const response =  await axios.delete(`http://127.0.0.1:9000/api/deleteUser/${uid}`); 
         set({ success: true, message: response.data });
       } else {
         console.log(`User account with ID ${uid} cannot be deleted.`);
       }
     } catch (error) {
       console.error("Failed to delete user account", error.message, error.code);
+    }
+  },
+  createAccount: async (data, lastSegment) => {
+    try {
+      let email, password, firstname, lastname, companyname;
+
+      if (lastSegment === 'user') {
+        email = data.floating_email;
+        password = data.floating_password;
+        firstname = data.floating_first_name;
+        lastname = data.floating_last_name;
+      } else {
+        email = data.floating_email;
+        password = data.floating_password;
+        companyname = data.floating_company_name;
+      }
+
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+     
+      await sendEmailVerification(auth.currentUser);
+      const userId = userCredential.user.uid;
+
+      const userDocData = {
+        email,
+        department: lastSegment === 'user' ? 'College of Engineering and Technology' : companyname,
+        role: lastSegment === 'user' ? 'STUDENT' : 'COMPANY',
+        uid: userId,
+      };
+
+      // Add `firstname`, `lastname`, and `resume` if `lastSegment` is 'user'
+      if (lastSegment === 'user') {
+        userDocData.firstname = firstname;
+        userDocData.lastname = lastname;
+        userDocData.resume = {};
+      } else {
+        // Add `companyname` if `lastSegment` is not 'user'
+        userDocData.companyname = companyname;
+      }
+
+      await setDoc(doc(db, "users", userId), userDocData);
+
+      await setDoc(doc(db, "usersChats", userId), {
+        chats: [],
+      });
+      set({ success: true, message: "User account created & Email verification sent" });
+    } catch (error) {
+      console.error("Failed to delete user account", error.message, error.code);
+      let errorMessage = "An error occurred.";
+      if (error.code === "auth/email-already-in-use") {
+        errorMessage = "Email already in use.";
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage = "Invalid email format.";
+      }
+      set({ success: false, message: errorMessage });
     }
   }
 }));

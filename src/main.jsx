@@ -13,6 +13,7 @@ import ForgotPassword from "./components/ForgotPassword.jsx";
 import ProtectedRoute from "./components/ProtectedRoutes.jsx";
 import Admin from "./layout/Admin.jsx";
 import AdminTable from "./layout/AdminTable.jsx";
+import AdminCreateAccount from "./layout/AdminCreateAccount.jsx";
 
 const router = createBrowserRouter([
   {
@@ -127,6 +128,22 @@ const router = createBrowserRouter([
     element: 
     <ProtectedRoute requiredRole="ADMIN">
       <AdminTable />
+    </ProtectedRoute>,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/admin/create/company",
+    element: 
+    <ProtectedRoute requiredRole="ADMIN">
+      <AdminCreateAccount/>
+    </ProtectedRoute>,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/admin/create/user",
+    element: 
+    <ProtectedRoute requiredRole="ADMIN">
+      <AdminCreateAccount/>
     </ProtectedRoute>,
     errorElement: <ErrorPage />,
   },

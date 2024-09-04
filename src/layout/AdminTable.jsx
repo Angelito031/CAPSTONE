@@ -9,7 +9,7 @@ const AdminTable = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true); 
     const [showModal, setShowModal] = useState(false); 
-    const { users, fetchUsers, message, success, setSuccess } = useUserStore();
+    const { users, fetchUsers, message, setMessage, success, setSuccess } = useUserStore();
     const location = useLocation();
     const pathSegments = location.pathname.split('/');
     const lastSegment = pathSegments[pathSegments.length - 1];
@@ -20,8 +20,9 @@ const AdminTable = () => {
         }
       }, [success]);
 
-    const handleContinue = () => {
+    const handleContinue = async () => {
         setSuccess(false);
+        setMessage(null);
         setShowModal(false); 
     };  
 
@@ -47,7 +48,7 @@ const AdminTable = () => {
 
     return (
         <div className='flex h-screen'>
-            <Sidebar />
+            <Sidebar/>
             {loading ? (
                 <div className='ml-64 flex items-center justify-center'>
                     <p className='ml-96 text-2xl font-bold'>Loading...</p>
