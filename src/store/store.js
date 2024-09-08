@@ -147,13 +147,14 @@ const useUserStore = create((set) => ({
     try {
       const usersSnapshot = await getDocs(collection(db, "users"));
       const usersList = usersSnapshot.docs.map(doc => doc.data()).filter(user => user.role !== 'SADMIN' && user.role !== 'ADMIN');
-
+      
       set({ users: usersList, isFetching: false });
     } catch (error) {
       console.error("Failed to fetch users", error.message, error.code);
       set({ isFetching: false });
     }
-  },
+  }
+  ,
   updateUser: async (userDetails, image) => {
     try {
       const userRef = doc(db, "users", auth.currentUser.uid);
