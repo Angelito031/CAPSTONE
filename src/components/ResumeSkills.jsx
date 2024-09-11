@@ -3,7 +3,7 @@ import React from "react"
 
 const ResumeSkills = () => {
     const {user} = useAuthStore()
-    const skillsList = user?.resume.skills || []
+    const skillsList = user.resume.skills ? user.resume.skills : []
 
   return (
     <div className="py-3">

@@ -1,23 +1,49 @@
 import { useAuthStore, useUserStore } from "../store/store";
 import React, { useState } from "react";
 import { lineSpinner } from "ldrs";
+import CreateInputField from "./CreateInputField";
+import { useLocation } from 'react-router-dom';
+import FormGroup from './FormGroup';
 
 const Table = ({ data }) => {
+    const location = useLocation();
+    const pathSegments = location.pathname.split('/');
+    const lastSegment = pathSegments[pathSegments.length - 1];
     const { removeAccount, fetchUsers,  message, setMessage, success, setSuccess  } = useUserStore()
     const { user } = useAuthStore()
     const { role } = user
     const [showModal, setShowModal] = useState(false); 
+    const [showEditModal, setShowEditModal] = useState(true); 
     const [isLoading, setIsLoading] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
+    const [formData, setFormData] = useState({
+      floating_first_name: '',
+      floating_last_name: '',
+      floating_company_name: '',
+      floating_number: "",
+      floating_location: "",
+  });
     lineSpinner.register()
 
+    const handleChange = (e) => {
+      const { name, value } = e.target;
+      setFormData(prevData => ({
+          ...prevData,
+          [name]: value
+      }));
+  };
     const handleDelete = async () => {
       setIsLoading(true);
       await removeAccount(userToDelete, role)
       await fetchUsers();
       setIsLoading(false);
   };  
+  const handleSubmit = ()=>{
 
+  }
+  const handleEditModal = (uid)=>{
+    setShowEditModal(true)
+  }
   const handleShowModal = (uid) => {
     setUserToDelete(uid);
     setShowModal(true);
@@ -59,7 +85,7 @@ const Table = ({ data }) => {
                   <td className="p-3 whitespace-nowrap">{user.contactno? user.contactno : "N/A"}</td>
                   <td className="p-3 whitespace-nowrap">{user.role}</td>
                   <td className="p-3 whitespace-nowrap">
-                    <button className="px-3 py-1 font-medium text-white bg-blue-600 rounded-md hover:bg-blue-500 focus:outline-none focus:shadow-outline-blue active:bg-blue-600 transition duration-150 ease-in-out">
+                    <button onClick={()=> handleEditModal(user.uid)} className="px-3 py-1 font-medium text-white bg-blue-600 rounded-md hover:bg-blue-500 focus:outline-none focus:shadow-outline-blue active:bg-blue-600 transition duration-150 ease-in-out">
                       Edit
                     </button>
                     <button onClick={() => handleShowModal(user.uid)} className="ml-2 px-3 py-1 font-medium text-white bg-red-600 rounded-md hover:bg-red-500 focus:outline-none focus:shadow-outline-red active:bg-red-600 transition duration-150 ease-in-out">
@@ -77,6 +103,74 @@ const Table = ({ data }) => {
             )}
           </tbody>
         </table>
+        {
+        showEditModal && (
+          <>
+            <div className="fixed inset-0 bg-black opacity-50 z-30"></div>
+            <div className="relative p-8 w-full flex flex-col justify-center items-center z-40">
+              <form className="w-1/2 mx-auto flex flex-col shadow-md p-5 bg-white shadow-gray-100 rounded-md z-50" method='POST' onSubmit={handleSubmit}>
+                  {lastSegment === "users" ? (
+                      <FormGroup>
+                          <CreateInputField
+                              type="text"
+                              name="floating_first_name"
+                              id="floating_first_name"
+                              label="First name"
+                              value={formData.floating_first_name}
+                              onChange={handleChange}
+                          />
+                          <CreateInputField
+                              type="text"
+                              name="floating_last_name"
+                              id="floating_last_name"
+                              label="Last name"
+                              value={formData.floating_last_name}
+                              onChange={handleChange}
+                          />
+                      </FormGroup>
+                  ) : (
+                      <CreateInputField
+                          type="text"
+                          name="floating_company_name"
+                          id="floating_company_name"
+                          label="Company Name"
+                          value={formData.floating_company_name}
+                          onChange={handleChange}
+                      />
+                  )}
+                  <FormGroup>
+                    <CreateInputField
+                        type="text"
+                        name="floating_location"
+                        id="floating_location"
+                        label="Location"
+                        value={formData.floating_location}
+                        onChange={handleChange}
+                    />
+                    <CreateInputField
+                        type="number"
+                        name="floating_number"
+                        id="floating_number"
+                        label="Number"
+                        value={formData.floating_number}
+                        onChange={handleChange}
+                    />
+                  </FormGroup>
+                    
+                  <button
+                      type="submit"
+                      disabled={isLoading}
+                      className={`text-white bg-blue-700 ${isLoading ? "" : "hover:bg-blue-800"} focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center`}
+                  >
+                      {isLoading ? <l-line-spinner color="white" size="25" speed="1" /> : "Submit"}
+                  </button>
+              </form>
+          </div>
+          </>
+          
+        )
+        //DELETE MODAL
+        }   
         {showModal && (
                 <>
                 <div className="fixed inset-0 bg-black opacity-50 z-30"></div>

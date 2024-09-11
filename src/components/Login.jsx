@@ -3,6 +3,7 @@ import { useAuthStore } from "../store/store";
 import univImage from "../assets/univ.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import React from "react";
+import { dotWave } from "ldrs";
 
 const Login = () => {
   const { login, servererror, setServerError, user } = useAuthStore();
@@ -14,6 +15,7 @@ const Login = () => {
     password: "",
   });
   const navigate = useNavigate();
+  dotWave.register();
 
   useEffect(() => {
     setRole(user?.role)
@@ -118,7 +120,7 @@ const Login = () => {
               disabled={isLoading}
               className="w-full rounded bg-gray-700 px-4 py-2 font-bold text-white hover:bg-gray-600"
             >
-              {isLoading ? "Login..." : "Login"}
+              {isLoading ? <l-dot-wave color="white" size='30' speed="1" /> : "Login"}
             </button>
           </div>
           <div

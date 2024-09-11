@@ -4,6 +4,7 @@ import { BsBuildingFillAdd } from 'react-icons/bs';
 import { useAuthStore } from "../store/store";
 import SidebarItem from './SidebarItem'; 
 import React, { useState } from 'react';
+import axios from 'axios';
 
 const Sidebar = () => {
   const { logout } = useAuthStore();

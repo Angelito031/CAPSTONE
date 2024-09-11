@@ -6,8 +6,8 @@ import { getDownloadURL, uploadBytes, ref } from "firebase/storage";
 import axios from "axios";
 
 const useAuthStore = create((set) => ({
-  isAuth: true,
-  user: {role: "ADMIN"},
+  isAuth: false,
+  user: null,
   servererror: null,
   currentUser: null,
   success: false,

@@ -5,6 +5,7 @@ import StatsCard from './StatsCard';
 import { collection, count, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useEffect } from 'react';
+import { bouncy } from 'ldrs';
 
 const AdminDashboard = () => {
     const [usersCount, setUsersCount] = useState(0);
@@ -13,6 +14,7 @@ const AdminDashboard = () => {
     const [isLoading, setIsLoading] = useState(false);
     const usersRef = collection(db, "users");
     const jobsRef = collection(db, "jobs");
+    bouncy.register()
 
     useEffect(() => {
         setIsLoading(true);
@@ -42,17 +44,17 @@ const AdminDashboard = () => {
         <StatsCard
           icon={FaUser}
           title="Users"
-          value={isLoading ? "Loading..." : usersCount}
+          value={isLoading ? <l-bouncy color="white" size="25" speed="1" /> : usersCount}
         />
         <StatsCard
           icon={FaBuilding}
           title="Companies"
-          value={isLoading ? "Loading..." : companiesCount}
+          value={isLoading ? <l-bouncy color="white" size="25" speed="1" /> : companiesCount}
         />
         <StatsCard
           icon={MdOutlineWork}
           title="Jobs"
-          value={isLoading ? "Loading..." : jobsCount}
+          value={isLoading ? <l-bouncy color="white" size="25" speed="1" /> : jobsCount}
         />
       </div>
     </div>
