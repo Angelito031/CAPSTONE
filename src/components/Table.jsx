@@ -1,9 +1,10 @@
 import { useAuthStore, useUserStore } from "../store/store";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { lineSpinner } from "ldrs";
 import CreateInputField from "./CreateInputField";
 import { useLocation } from 'react-router-dom';
 import FormGroup from './FormGroup';
+import { FaArrowLeft } from 'react-icons/fa';
 
 const Table = ({ data }) => {
     const location = useLocation();
@@ -17,11 +18,13 @@ const Table = ({ data }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
     const [formData, setFormData] = useState({
-      floating_first_name: '',
-      floating_last_name: '',
-      floating_company_name: '',
+      floating_first_name: "",
+      floating_last_name: "",
+      floating_company_name: "",
       floating_number: "",
       floating_location: "",
+      floating_email: "",
+      floating_role: "",
   });
     lineSpinner.register()
 
@@ -38,11 +41,25 @@ const Table = ({ data }) => {
       await fetchUsers();
       setIsLoading(false);
   };  
-  const handleSubmit = ()=>{
-
+  const handleSubmit = (e)=>{
+    e.preventDefault()
+    setIsLoading(true)
+    console.log(formData)
+    
   }
   const handleEditModal = (uid)=>{
     setShowEditModal(true)
+    const userData = data.find((user) => user.uid === uid);
+    console.log(userData)
+    setFormData({
+      floating_first_name: userData.firstname,
+      floating_last_name: userData.lastname,
+      floating_company_name: userData.company_name,
+      floating_number: userData.number,
+      floating_location: userData.location,
+      floating_email: userData.email,
+      floating_role: userData.role,
+    })
   }
   const handleShowModal = (uid) => {
     setUserToDelete(uid);
@@ -107,8 +124,9 @@ const Table = ({ data }) => {
         showEditModal && (
           <>
             <div className="fixed inset-0 bg-black opacity-50 z-30"></div>
-            <div className="relative p-8 w-full flex flex-col justify-center items-center z-40">
-              <form className="w-1/2 mx-auto flex flex-col shadow-md p-5 bg-white shadow-gray-100 rounded-md z-50" method='POST' onSubmit={handleSubmit}>
+            <div className="relative p-4 w-1/2 mx-auto flex flex-col justify-center rounded-lg bg-white items-center z-40">
+            <button onClick={()=> setShowEditModal(false)} className="text-white h-5 lg:h-fit p-2 rounded-md bg-gray-500 hover:bg-gray-600 shadow hover:shadow-lg font-extralight lg:font-medium transition transform hover:-translate-y-0.5 self-start"><FaArrowLeft /></button>
+              <form className="flex flex-col bg-white shadow-gray-100 z-50" method='POST' onSubmit={handleSubmit}>
                   {lastSegment === "users" ? (
                       <FormGroup>
                           <CreateInputField
@@ -156,13 +174,39 @@ const Table = ({ data }) => {
                         onChange={handleChange}
                     />
                   </FormGroup>
+                    <CreateInputField
+                        type="email"
+                        name="floating_email"
+                        id="floating_email"
+                        label="Email"
+                        value={formData.floating_email}
+                        onChange={handleChange}
+                    />
+                    <FormGroup>
+                    <CreateInputField
+                        type="password"
+                        name="floating_password"
+                        id="floating_password"
+                        label="Password"
+                        value={formData.floating_password}
+                        onChange={handleChange}
+                    />
+                    <CreateInputField
+                        type="text"
+                        name="floating_role"
+                        id="floating_role"
+                        label="Role"
+                        value={formData.floating_role}
+                        onChange={handleChange}
+                    />
+                    </FormGroup>
                     
                   <button
                       type="submit"
                       disabled={isLoading}
                       className={`text-white bg-blue-700 ${isLoading ? "" : "hover:bg-blue-800"} focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center`}
                   >
-                      {isLoading ? <l-line-spinner color="white" size="25" speed="1" /> : "Submit"}
+                      {isLoading ? <l-line-spinner color="white" size="15" speed="1" /> : "Submit"}
                   </button>
               </form>
           </div>
