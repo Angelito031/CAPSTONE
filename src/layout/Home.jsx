@@ -15,7 +15,7 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if(user?.role === 'ADMIN'){
+    if(user?.role === 'ADMIN' || user?.role === 'SADMIN') {
       navigate('/admin/dashboard')
     }
   }, [user])  

@@ -248,8 +248,15 @@ const useUserStore = create((set) => ({
       await setDoc(doc(db, "users", userId), userDocData);
 
       await setDoc(doc(db, "usersChats", userId), {
-        chats: [],
+        chats: []
       });
+
+      if(lastSegment === 'company') {
+        await setDoc(doc(db, "jobLists", userId), {
+          jobs: []
+        })
+      }
+
       set({ success: true, message: "User account created & Email verification sent" });
     } catch (error) {
       console.error("Failed to delete user account", error.message, error.code);
@@ -261,7 +268,45 @@ const useUserStore = create((set) => ({
       }
       set({ success: false, message: errorMessage });
     }
-  }
+  },
+  adminUpdateUser: async (uid, data, role, adminUid) => {
+    try {
+      const userRef = doc(db, "users", uid);
+      const userSnapshot = await getDoc(userRef); 
+      const oldEmail = userSnapshot.data().email;
+
+      // Allow admins to update user data in Firestore
+      if (role === "ADMIN" || role === "SADMIN") {
+        await updateDoc(userRef, { ...data });
+      }
+  
+      // Only SADMIN can change the email
+      if (role === "SADMIN" && data.email !== oldEmail ) {
+        await axios.post(`http://127.0.0.1:9000/api/changeEmail`, {
+          uid: uid,            // User ID whose email is being updated
+          newEmail: data.email, // The new email address
+          adminUid: adminUid,  // The UID of the admin who is changing the email
+        });
+      }
+
+      if(data.password?.length > 0) {
+        await axios.post(`http://127.0.0.1:9000/api/changePassword`, {
+          uid: uid,            // User ID whose password is being updated
+          newPassword: data.password, // The new password
+        });
+      }
+  
+      set({ success: true, message: "User updated successfully" });
+    } catch (error) {
+      console.error("Failed to update user", error.message, error.code);
+  
+      // Handle specific error cases if needed
+      if (error.code === "auth/requires-recent-login") {
+        console.error("The user needs to re-authenticate before this operation can be executed.");
+      }
+    }
+  },
+  
 }));
 
 const useSearchStore = create((set) => ({

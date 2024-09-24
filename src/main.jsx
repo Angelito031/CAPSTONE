@@ -102,7 +102,7 @@ const router = createBrowserRouter([
   {
     path: "/admin/dashboard",
     element: 
-    <ProtectedRoute requiredRole="ADMIN">
+    <ProtectedRoute requiredRole={["ADMIN", "SADMIN"]}>
       <Admin />
     </ProtectedRoute>,
     errorElement: <ErrorPage />,
@@ -110,7 +110,7 @@ const router = createBrowserRouter([
   {
     path: "/admin/table/users",
     element: 
-    <ProtectedRoute requiredRole="ADMIN">
+    <ProtectedRoute requiredRole={["ADMIN", "SADMIN"]}>
       <AdminTable />
     </ProtectedRoute>,
     errorElement: <ErrorPage />,
@@ -118,7 +118,7 @@ const router = createBrowserRouter([
   {
     path: "/admin/table/companies",
     element: 
-    <ProtectedRoute requiredRole="ADMIN">
+    <ProtectedRoute requiredRole={["ADMIN", "SADMIN"]}>
       <AdminTable />
     </ProtectedRoute>,
     errorElement: <ErrorPage />,
@@ -126,7 +126,7 @@ const router = createBrowserRouter([
   {
     path: "/admin/table/jobs",
     element: 
-    <ProtectedRoute requiredRole="ADMIN">
+    <ProtectedRoute requiredRole={["ADMIN", "SADMIN"]}>
       <AdminTable />
     </ProtectedRoute>,
     errorElement: <ErrorPage />,
@@ -134,7 +134,7 @@ const router = createBrowserRouter([
   {
     path: "/admin/create/company",
     element: 
-    <ProtectedRoute requiredRole="ADMIN">
+    <ProtectedRoute requiredRole={["ADMIN", "SADMIN"]}>
       <AdminCreateAccount/>
     </ProtectedRoute>,
     errorElement: <ErrorPage />,
@@ -142,7 +142,7 @@ const router = createBrowserRouter([
   {
     path: "/admin/create/user",
     element: 
-    <ProtectedRoute requiredRole="ADMIN">
+    <ProtectedRoute requiredRole={["ADMIN", "SADMIN"]}>
       <AdminCreateAccount/>
     </ProtectedRoute>,
     errorElement: <ErrorPage />,

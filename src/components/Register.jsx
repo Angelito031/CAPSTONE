@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuthStore } from "../store/store";  
 import React from "react";
+import { dotWave } from "ldrs";
 
 const Register = () => {
   const { register, success, setSuccess, servererror, setServerError } = useAuthStore();
@@ -9,6 +10,7 @@ const Register = () => {
   const [isEmpty, setIsEmpty] = useState("");
   const [showModal, setShowModal] = useState(false); 
   const navigate = useNavigate();
+  dotWave.register();
   const [credentials, setCredentials] = useState({
     firstname: "",
     lastname: "",
@@ -147,9 +149,9 @@ const Register = () => {
           <div className="mt-8">
             <button
               disabled={isLoading}
-              className="w-full rounded bg-gray-700 px-4 py-2 font-bold text-white hover:bg-gray-600"
+              className={`w-full rounded bg-gray-700 px-4 py-2 font-bold text-white ${isLoading ? "cursor-not-allowed" : "hover:bg-gray-600"}`}
             >
-              {isLoading ? "Submitting..." : "Submit"}
+              {isLoading ?  <l-dot-wave color="white" size='30' speed="1" /> : "Submit"}
             </button>
           </div>
         </form>

@@ -8,10 +8,20 @@ import univ from "../assets/univ.jpg";
 import Resume from '../components/Resume';
 import { useState } from 'react';
 import React from 'react';
+import { useAuthStore } from '../store/store';
+import CompanySidebar from '../components/CompanySidebar';
 
 const Profile = () => {
+    const { user } = useAuthStore();
     const [isResumeOpen, setIsResumeOpen] = useState(false);
 
+    if(user.role === "COMPANY"){
+        return (
+        <>
+            <Header/>
+            <CompanySidebar />
+        </>);
+    }
     return (
         <div className='App'>
             {isResumeOpen ? (<Resume setIsResumeOpen={setIsResumeOpen} />) : (

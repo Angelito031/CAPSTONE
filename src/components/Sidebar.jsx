@@ -5,16 +5,19 @@ import { useAuthStore } from "../store/store";
 import SidebarItem from './SidebarItem'; 
 import React, { useState } from 'react';
 import axios from 'axios';
+import { dotWave } from "ldrs";
 
 const Sidebar = () => {
   const { logout } = useAuthStore();
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  dotWave.register();
 
   const handleContinue = async () => {
     setIsLoading(true);
     await axios.delete('http://127.0.0.1:9000/api/resetDatabase');
     setShowModal(false);
+    setIsLoading(false);
   };
 
   return (
@@ -25,7 +28,7 @@ const Sidebar = () => {
           <div>UDM | On-The-Job Training</div>
         </div>
         <div className="overflow-y-auto overflow-x-hidden flex-grow">
-          <ul className="flex flex-col py-2 space-y-1">
+          <ul className="flex flex-col py-2">
             <li className="px-5">
               <div className="flex flex-row items-center h-8">
                 <div className="text-sm font-light tracking-wide text-gray-500">Menu</div>
@@ -94,16 +97,17 @@ const Sidebar = () => {
             <div className='flex flex-row justify-center'>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-white h-10 lg:h-auto py-2 px-4 my-2 mx-2 uppercase rounded bg-green-700 hover:bg-green-800 shadow hover:shadow-lg font-extralight lg:font-medium transition transform hover:-translate-y-0.5"
+                disabled={isLoading}
+                className={`${isLoading ? "hidden" : "text-white h-10 lg:h-auto py-2 px-4 my-2 mx-2 uppercase rounded bg-green-700 hover:bg-green-800 shadow hover:shadow-lg font-extralight lg:font-medium transition transform hover:-translate-y-0.5"}`}
               >
                 Cancel
               </button>
               <button
                 onClick={handleContinue}
                 disabled={isLoading}
-                className="text-white h-10 lg:h-auto py-2 px-4 my-2 uppercase rounded bg-red-700 hover:bg-red-800 shadow hover:shadow-lg font-extralight lg:font-medium transition transform hover:-translate-y-0.5"
+                className={`text-white h-10 lg:h-auto py-2 px-4 my-2 uppercase rounded bg-red-700 ${isLoading ? "cursor-not-allowed" : "hover:bg-red-800 shadow hover:shadow-lg font-extralight lg:font-medium transition transform hover:-translate-y-0.5"}`}
               >
-                Continue
+                {isLoading ? <l-dot-wave color="white" size='30' speed="1" /> : "Continue"}
               </button>
             </div>
           </div>
