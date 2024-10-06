@@ -92,6 +92,46 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
   {
+    path: "/profile/:userId/profile",
+    element: 
+    <ProtectedRoute requiredRole="COMPANY">
+      <Profile />
+    </ProtectedRoute>,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/profile/:userId/dashboard",
+    element: 
+    <ProtectedRoute requiredRole="COMPANY">
+      <Profile />
+    </ProtectedRoute>,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/profile/:userId/create/job",
+    element: 
+    <ProtectedRoute requiredRole="COMPANY">
+      <Profile />
+    </ProtectedRoute>,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/profile/:userId/table/jobs",
+    element: 
+    <ProtectedRoute requiredRole="COMPANY">
+      <Profile />
+    </ProtectedRoute>,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/profile/:userId/edit",
+    element: 
+    <ProtectedRoute requiredRole="COMPANY">
+      <Profile />
+    </ProtectedRoute>,
+    errorElement: <ErrorPage />,
+  },
+  {
     path: "/profile/edit/:userId",
     element: 
     <ProtectedRoute requiredRole="STUDENT">

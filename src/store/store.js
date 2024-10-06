@@ -6,8 +6,8 @@ import { getDownloadURL, uploadBytes, ref } from "firebase/storage";
 import axios from "axios";
 
 const useAuthStore = create((set) => ({
-  isAuth: false,
-  user: null,
+  isAuth: true,
+  user: {role: "COMPANY"},
   servererror: null,
   currentUser: null,
   success: false,
@@ -271,10 +271,11 @@ const useUserStore = create((set) => ({
   },
   adminUpdateUser: async (uid, data, role, adminUid) => {
     try {
+      // Update user data in Firestore
       const userRef = doc(db, "users", uid);
       const userSnapshot = await getDoc(userRef); 
       const oldEmail = userSnapshot.data().email;
-
+      console.log(data)
       // Allow admins to update user data in Firestore
       if (role === "ADMIN" || role === "SADMIN") {
         await updateDoc(userRef, { ...data });

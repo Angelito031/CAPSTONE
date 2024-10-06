@@ -1,8 +1,7 @@
-import React, { useState } from 'react'
+import React from 'react'
 import AdminDashboard from '../components/AdminDashboard'
 import Sidebar from '../components/Sidebar'
-import axios from 'axios'
-import { useAuthStore } from '../store/store';
+
 
 const Admin = () => {
 

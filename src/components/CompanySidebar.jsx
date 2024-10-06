@@ -7,17 +7,14 @@ import SidebarItem from './SidebarItem';
 import React, { useState } from 'react';
 import { dotWave } from "ldrs";
 
-const CompanySidebar = () => {
-  const { logout } = useAuthStore();
-  const [showModal, setShowModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+const CompanySidebar = ({ user }) => {
   dotWave.register();
 
 
   return (
     <>
       <div className=" flex flex-col antialiased bg-gray-800 text-gray-800">
-      <div className="fixed flex flex-col left-0 w-64 bg-white h-full border-r">
+      <div className="fixed flex flex-col left-0 w-64 bg-white h-fit border-r">
         <div className="overflow-y-auto overflow-x-hidden flex-grow">
           <ul className="flex flex-col py-2">
             <li className="px-5">
@@ -28,12 +25,12 @@ const CompanySidebar = () => {
             <SidebarItem
               label="Dashboard"
               icon={MdOutlineDashboard}
-              to="/admin/dashboard"  
+              to={`/profile/${user.uid}/dashboard`}  
             />
             <SidebarItem
               label="Profile"
               icon={AiFillProfile}
-              to="/admin/dashboard"  
+              to={`/profile/${user.uid}/profile`}  
             />
             <li className="px-5">
               <div className="flex flex-row items-center h-8">
@@ -41,9 +38,9 @@ const CompanySidebar = () => {
               </div>
             </li>
             <SidebarItem
-              label="User"
+              label="Job"
               icon={IoBagAddSharp}
-              to="/admin/create/user"  
+              to={`/profile/${user.uid}/create/job`}    
             />
             <li className="px-5">
               <div className="flex flex-row items-center h-8">
@@ -53,7 +50,7 @@ const CompanySidebar = () => {
             <SidebarItem
               label="Jobs"
               icon={MdOutlineWork}
-              to="/admin/table/jobs"  
+              to={`/profile/${user.uid}/table/jobs`}
             />
             <li className="px-5">
               <div className="flex flex-row items-center h-8">
@@ -63,7 +60,7 @@ const CompanySidebar = () => {
             <SidebarItem
               label="Edit Profile"
               icon={FaUserEdit}
-              to="/admin/table/jobs"  
+              to={`/profile/${user.uid}/edit`}
             />
           </ul>
         </div>

@@ -10,16 +10,31 @@ import { useState } from 'react';
 import React from 'react';
 import { useAuthStore } from '../store/store';
 import CompanySidebar from '../components/CompanySidebar';
+import CompanyDashboard from '../components/CompanyDashboard';
+import { useLocation } from 'react-router-dom';
+import CompanyProfile from '../components/CompanyProfile';
+import CompanyCreateJob from '../components/CompanyCreateJob';
+import CompanyTable from '../components/CompanyTable';
+import CompanyEditProfile from '../components/CompanyEditProfile';
 
 const Profile = () => {
     const { user } = useAuthStore();
     const [isResumeOpen, setIsResumeOpen] = useState(false);
+    const location = useLocation();
+    const pathSegments = location.pathname.split('/');
+    const lastSegment = pathSegments[pathSegments.length - 1];
 
     if(user.role === "COMPANY"){
         return (
         <>
             <Header/>
-            <CompanySidebar />
+            <main className='flex'>
+                <CompanySidebar user={user}/>
+                {lastSegment === "dashboard" ? <CompanyDashboard user={user}/> 
+                : lastSegment === "profile" ? <CompanyProfile user={user} /> 
+                : lastSegment === "job" ? <CompanyCreateJob /> 
+                : lastSegment === "jobs" ? <CompanyTable /> : <CompanyEditProfile />}
+            </main>
         </>);
     }
     return (

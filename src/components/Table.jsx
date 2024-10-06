@@ -71,11 +71,11 @@ const Table = ({ data }) => {
     const userData = data.find((user) => user.uid === uid);
 
     setFormData({
-      firstname: userData.firstname,
-      lastname: userData.lastname,
+      ...(lastSegment === 'users' && { firstname: userData.firstname }),
+      ...(lastSegment === 'users' && { lastname: userData.lastname }),
       ...(lastSegment === 'companies' && { companyname: userData.companyname }), // Conditionally add companyname
       contactno: userData.contactno,
-      location: userData.location,
+      location: userData.location? userData.location : "N/A",
       email: userData.email,
       role: userData.role,
     })    
