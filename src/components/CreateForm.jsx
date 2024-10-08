@@ -132,7 +132,7 @@ function CreateForm() {
                         : "hidden"
                 }
             >
-                <p>{isMatch || message || "asdasds"}</p>
+                <p>{isMatch || message || "an error occured"}</p>
             </div>
         </div>
     );

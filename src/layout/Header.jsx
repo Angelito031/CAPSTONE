@@ -91,7 +91,7 @@ const Header = () => {
               Students
             </NavLink> ) : null}
           <NavLink
-            to={`/profile/${user.uid}`}
+            to={user?.role === "STUDENT" ? `/profile/${user.uid}` : `/profile/${user.uid}/profile`}
             className={({ isActive }) =>
               isActive
                 ? "mr-5 underline text-green-900 font-semibold shadow-sm hover:text-gray-900"

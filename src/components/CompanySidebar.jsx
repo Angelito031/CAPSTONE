@@ -1,10 +1,10 @@
 import { FaUserEdit } from 'react-icons/fa';
-import { MdOutlineDashboard, MdOutlineWork } from 'react-icons/md';
+import {  MdOutlineWork } from 'react-icons/md';
 import { AiFillProfile } from "react-icons/ai";
 import { IoBagAddSharp } from "react-icons/io5";
 import { useAuthStore } from "../store/store";
 import SidebarItem from './SidebarItem'; 
-import React, { useState } from 'react';
+import React from 'react';
 import { dotWave } from "ldrs";
 
 const CompanySidebar = ({ user }) => {
@@ -22,11 +22,6 @@ const CompanySidebar = ({ user }) => {
                 <div className="text-sm font-light tracking-wide text-gray-500">Menu</div>
               </div>
             </li>
-            <SidebarItem
-              label="Dashboard"
-              icon={MdOutlineDashboard}
-              to={`/profile/${user.uid}/dashboard`}  
-            />
             <SidebarItem
               label="Profile"
               icon={AiFillProfile}

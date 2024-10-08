@@ -123,16 +123,91 @@ const useAuthStore = create((set) => ({
 
 const useJobStore = create((set) => ({
   jobs: [],
+  message: null,
+  success: false,
+
+  // Setters for success and message
+  setSuccess: (success) => set({ success }),
+  setMessage: (message) => set({ message }),
   setJobs: (jobs) => set({ jobs }),
+
+  // Fetch jobs from Firestore
   fetchJobs: async () => {
     try {
-      const response = await axios.get("/api/jobs");
-      set({ jobs: response.data });
+      const querySnapshot = await getDocs(collection(db, 'jobLists'));
+      const jobsArray = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      set({ jobs: jobsArray });
     } catch (error) {
       console.error("Failed to fetch jobs", error);
     }
   },
+
+  // Create a job in Firestore
+  createJob: async (userId, job) => {
+    try {
+      console.log(userId, job);
+      const docRef = doc(db, 'jobLists', userId);
+      const docSnap = await getDoc(docRef);
+
+      // Set success and message after creating the job
+      set((state) => ({
+          success: true,
+          message: "Job created successfully",
+      }));
+
+      if (docSnap.exists()) {
+        // If the document exists, update the jobs array
+        const currentData = docSnap.data();
+        const updatedJobs = [...(currentData.jobs || []), job];
+        await updateDoc(docRef, { jobs: updatedJobs });
+      } else {
+        // If the document doesn't exist, create a new document with the job
+        await setDoc(docRef, { jobs: [job] });
+      }
+
+      // Update the jobs state after job creation
+      set((state) => ({
+        jobs: [...state.jobs, job],
+      }));
+
+    } catch (error) {
+      // Set failure and message in case of error
+      set((state) => ({
+        success: false,
+        message: "Failed to create job",
+      }));
+      console.error("Failed to create job", error);
+    }
+  },
+
+  // Delete a job in Firestore
+  deleteJob: async (jobId) => {
+    try {
+      await deleteDoc(doc(db, 'jobLists', jobId));
+      set((state) => ({
+        jobs: state.jobs.filter((job) => job.id !== jobId),
+      }));
+    } catch (error) {
+      console.error("Failed to delete job", error);
+    }
+  },
+
+  // Update a job in Firestore
+  updateJob: async (jobId, updatedJob) => {
+    try {
+      const jobRef = doc(db, 'jobLists', jobId);
+      await updateDoc(jobRef, updatedJob);
+      set((state) => ({
+        jobs: state.jobs.map((job) =>
+          job.id === jobId ? { id: jobId, ...updatedJob } : job
+        ),
+      }));
+    } catch (error) {
+      console.error("Failed to update job", error);
+    }
+  },
 }));
+
 
 const useUserStore = create((set) => ({
   users: [],
