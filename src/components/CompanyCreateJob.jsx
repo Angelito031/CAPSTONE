@@ -102,6 +102,30 @@ const CompanyCreateJob = ({ user }) => {
           value={formData.jobTitle}
           onChange={handleChange}
         />
+        <CreateInputField
+          type="text"
+          name="location"
+          id="jobTitle"
+          label="Job Location"
+          value={formData.jobTitle}
+          onChange={handleChange}
+        />
+        <CreateInputField
+          type="number"
+          name="limitedTo"
+          id="applicantslimit"
+          label="Applicants Limit"
+          value={formData.jobTitle}
+          onChange={handleChange}
+        />
+        <CreateInputField
+          type="email"
+          name="email"
+          id="companyemail"
+          label="Company Email"
+          value={formData.jobTitle}
+          onChange={handleChange}
+        />
 
         <h5 className="mt-2">Skills</h5>
         {skills.map((skill, index) => (
