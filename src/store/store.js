@@ -179,33 +179,62 @@ const useJobStore = create((set) => ({
       console.error("Failed to create job", error);
     }
   },
-
   // Delete a job in Firestore
-  deleteJob: async (jobId) => {
+  deleteJob: async (companyId, jobUid) => {
     try {
-      await deleteDoc(doc(db, 'jobLists', jobId));
-      set((state) => ({
-        jobs: state.jobs.filter((job) => job.id !== jobId),
-      }));
+      const companyRef = doc(db, 'jobLists', companyId);
+      const companySnapshot = await getDoc(companyRef);
+      
+      if (companySnapshot.exists()) {
+        const jobs = companySnapshot.data().jobs || [];
+        const updatedJobs = jobs.filter((job) => job.jobUid !== jobUid);
+        
+        await updateDoc(companyRef, {
+          jobs: updatedJobs,
+        });
+        
+        set((state) => ({
+          jobs: state.jobs.map((company) => 
+            company.id === companyId ? { ...company, jobs: updatedJobs } : company
+          ),
+        }));
+      }
     } catch (error) {
       console.error("Failed to delete job", error);
     }
   },
+    // Update a job in Firestore
+    updateJob: async (companyId, jobId, updatedDataJob) => {
+      try {
+        const companyRef = doc(db, 'jobLists', companyId);
+        const companySnapshot = await getDoc(companyRef);
 
-  // Update a job in Firestore
-  updateJob: async (jobId, updatedJob) => {
-    try {
-      const jobRef = doc(db, 'jobLists', jobId);
-      await updateDoc(jobRef, updatedJob);
-      set((state) => ({
-        jobs: state.jobs.map((job) =>
-          job.id === jobId ? { id: jobId, ...updatedJob } : job
-        ),
-      }));
-    } catch (error) {
-      console.error("Failed to update job", error);
-    }
-  },
+        if (companySnapshot.exists()) {
+          const companyData = companySnapshot.data();
+          const jobs = companyData.jobs || [];
+
+          // Find the job with matching jobUid and update it
+          const updatedJob = jobs.find((job) => job.jobUid === jobId);
+          console.log(updatedJob)
+          // Update Firestore with the updated jobs array
+          await updateDoc(companyRef, {
+            jobs: updatedDataJob,
+          });
+
+          // Update local state using Zustand
+          set((state) => ({
+            jobs: state.jobs.map((company) => 
+              company.id === companyId ? { ...company, jobs: updatedJobs } : company
+            ),
+          }));
+        } else {
+          console.error("Company does not exist.");
+        }
+      } catch (error) {
+        console.error("Failed to update job", error);
+      }
+    },
+
 }));
 
 

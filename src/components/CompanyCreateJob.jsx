@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'; // Added useRef and useEffect
+import React, { useState, useEffect, useRef } from 'react'; 
+import FormGroup from './FormGroup';  
 import CreateInputField from './CreateInputField';
 import EditInputField from './EditInputField'; 
 import { useJobStore } from '../store/store';
@@ -9,9 +10,13 @@ import {v4 as uiidv4} from 'uuid';
 
 const CompanyCreateJob = ({ user }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(false);
   const [formData, setFormData] = useState({
     jobTitle: '',
     jobDescription: '',
+    email: '',
+    location: '',
+    limit: '',
   });
   const [skills, setSkills] = useState([]); 
   const { createJob, message, success, setMessage, setSuccess } = useJobStore();
@@ -45,29 +50,65 @@ const CompanyCreateJob = ({ user }) => {
     setSkills(updatedSkills);
   };
 
+  const validateFields = () => {
+    const { jobTitle, jobDescription, email, location, limit } = formData;
+    const limitValue = parseInt(limit, 10);
+
+    if (!jobTitle.trim()) {
+      setMessage('Job Title is required.');
+      return true;
+    }
+    if (!location.trim()) {
+      setMessage('Location is required.');
+      return true;
+    }
+    if (!jobDescription.trim()) {
+      setMessage('Job Description is required.');
+      return true;
+    }
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setMessage('A valid email is required.');
+      return true;
+    }
+    if (isNaN(limitValue) || limitValue <= 0 || limitValue > 10) {
+      setMessage('Please enter a valid limit between 1 and 10.');
+      return true;
+    }
+    if (skills.length < 1 || skills.every(skill => skill.trim() === '')) {
+      setMessage('Please add at least one skill.');
+      return true;
+    }
+
+    return false;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Check if skills array is empty or contains only empty strings
-    if (skills.length < 1 || skills.every(skill => skill.trim() === '')) {
-      setMessage('Please add at least one skill');
+    // Validate all fields
+    if (validateFields()) {
+      setError(true);
       setIsLoading(false);
-  
+
       // Reset message after 3 seconds
       setTimeout(() => {
         setMessage(null);
       }, 3000);
-      return; // Stop the function execution if the condition is met
+      return; // Stop the function execution if the validation fails
     }
-    
+
     // Prepare the job data, ensuring skills do not have empty strings
-    const filteredSkills = skills.filter(skill => skill.trim() !== ''); // Filter out empty strings
-    const jobData = { ...formData, skills: filteredSkills,jobUid, applicants: [] }; // Prepare the job data
-  
-    console.log(jobData); // Log the job data to check if it is correctly formed
-  
+    const filteredSkills = skills.filter(skill => skill.trim() !== '');
+    const jobData = { 
+      ...formData, 
+      skills: filteredSkills, 
+      jobUid, 
+      applicants: [], 
+      status: 'PENDING' 
+    };
+
     await createJob("IPer8pdgZGVBOQAkbyVT8YiRMls2", jobData);
+
     // Reset form and success message after submission
     setTimeout(() => {
       setMessage(null);
@@ -75,14 +116,15 @@ const CompanyCreateJob = ({ user }) => {
       setFormData({
         jobTitle: '',
         jobDescription: '',
+        email: '',
+        location: '',
+        limit: '',
       });
       setSkills([]);
     }, 1500);
-  
-    setIsLoading(false); // Reset loading state
+
+    setIsLoading(false); 
   };
-  
-  
 
   // Scroll to message when it changes
   useEffect(() => {
@@ -102,28 +144,30 @@ const CompanyCreateJob = ({ user }) => {
           value={formData.jobTitle}
           onChange={handleChange}
         />
-        <CreateInputField
-          type="text"
-          name="location"
-          id="jobTitle"
-          label="Job Location"
-          value={formData.jobTitle}
-          onChange={handleChange}
-        />
-        <CreateInputField
-          type="number"
-          name="limitedTo"
-          id="applicantslimit"
-          label="Applicants Limit"
-          value={formData.jobTitle}
-          onChange={handleChange}
-        />
+        <FormGroup>
+          <CreateInputField
+            type="text"
+            name="location"
+            id="location"
+            label="Job Location"
+            value={formData.location}
+            onChange={handleChange}
+          />
+          <CreateInputField
+            type="text"
+            name="limit"
+            id="limit"
+            label="Applicants Limit (1 to 10)"
+            value={formData.limit}
+            onChange={handleChange}
+          />
+        </FormGroup>
         <CreateInputField
           type="email"
           name="email"
           id="companyemail"
           label="Company Email"
-          value={formData.jobTitle}
+          value={formData.email}
           onChange={handleChange}
         />
 
@@ -173,11 +217,7 @@ const CompanyCreateJob = ({ user }) => {
 
       <div
         ref={messageRef} 
-        className={
-          message
-            ? `my-3 mx-auto h-fit w-1/2 text-wrap animate-pulse rounded bg-green-500 p-1 text-center`
-            : "hidden"
-        }
+        className={message ? `my-3 mx-auto h-fit w-1/2 text-wrap animate-pulse rounded ${error ? "bg-red-500" : "bg-green-500"} p-1 text-center` : "hidden"}
       >
         <p>{message}</p>
       </div>
