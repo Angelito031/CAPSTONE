@@ -143,42 +143,43 @@ const useJobStore = create((set) => ({
   },
 
   // Create a job in Firestore
-  createJob: async (userId, job) => {
-    try {
-      console.log(userId, job);
-      const docRef = doc(db, 'jobLists', userId);
-      const docSnap = await getDoc(docRef);
+createJob: async (userId, job) => {
+  try {
+    const docRef = doc(db, "jobLists", userId);
+    const docSnap = await getDoc(docRef);
 
-      // Set success and message after creating the job
-      set((state) => ({
-          success: true,
-          message: "Job created successfully",
-      }));
+    console.log("Fetched document data:", docSnap.exists() ? docSnap.data() : "No document found"); // Log document data
 
-      if (docSnap.exists()) {
-        // If the document exists, update the jobs array
-        const currentData = docSnap.data();
-        const updatedJobs = [...(currentData.jobs || []), job];
-        await updateDoc(docRef, { jobs: updatedJobs });
-      } else {
-        // If the document doesn't exist, create a new document with the job
-        await setDoc(docRef, { jobs: [job] });
-      }
+    if (docSnap.exists()) {
+      // If the document exists, update the jobs array
+      const currentData = docSnap.data();
+      const updatedJobs = Array.isArray(currentData.jobs) ? [...currentData.jobs, job] : [job]; // Ensure jobs is an array
 
-      // Update the jobs state after job creation
-      set((state) => ({
-        jobs: [...state.jobs, job],
-      }));
+      console.log("Updated jobs array:", updatedJobs); // Log updated jobs array
 
-    } catch (error) {
-      // Set failure and message in case of error
-      set((state) => ({
-        success: false,
-        message: "Failed to create job",
-      }));
-      console.error("Failed to create job", error);
+      await updateDoc(docRef, { jobs: updatedJobs });
+    } else {
+      // If the document doesn't exist, create a new document with the job
+      await setDoc(docRef, { jobs: [job] });
     }
-  },
+
+    // Update the jobs state after job creation
+    set((state) => ({
+      jobs: Array.isArray(state.jobs) ? [...state.jobs, job] : [job], // Ensure state.jobs is an array
+      success: true,
+      message: "Job created successfully",
+    }));
+
+  } catch (error) {
+    // Set failure and message in case of error
+    set((state) => ({
+      success: false,
+      message: "Failed to create job",
+    }));
+    console.error("Failed to create job", error);
+  }
+},
+
   // Delete a job in Firestore
   deleteJob: async (companyId, jobUid) => {
     try {
@@ -203,37 +204,50 @@ const useJobStore = create((set) => ({
       console.error("Failed to delete job", error);
     }
   },
-    // Update a job in Firestore
-    updateJob: async (companyId, jobId, updatedDataJob) => {
-      try {
-        const companyRef = doc(db, 'jobLists', companyId);
-        const companySnapshot = await getDoc(companyRef);
+  // Update a job in Firestore
+  updateJob: async (companyId, jobId, updatedDataJob) => {
+    try {
+      const companyRef = doc(db, 'jobLists', companyId);
+      const companySnapshot = await getDoc(companyRef);
 
-        if (companySnapshot.exists()) {
-          const companyData = companySnapshot.data();
-          const jobs = companyData.jobs || [];
+      if (companySnapshot.exists()) {
+        const companyData = companySnapshot.data();
+        const jobs = Array.isArray(companyData.jobs) ? [...companyData.jobs] : [];
 
-          // Find the job with matching jobUid and update it
-          const updatedJob = jobs.find((job) => job.jobUid === jobId);
-          console.log(updatedJob)
-          // Update Firestore with the updated jobs array
-          await updateDoc(companyRef, {
-            jobs: updatedDataJob,
-          });
+        // Find and update the job with matching jobUid, ensuring skills remain an array
+        const updatedJobs = jobs.map((job) => {
+          if (job.jobUid === jobId) {
+            return {
+              ...job,
+              ...updatedDataJob,
+              skills: Array.isArray(updatedDataJob.skills) ? updatedDataJob.skills : job.skills, // Ensure skills is an array
+            };
+          }
+          return job;
+        });
 
-          // Update local state using Zustand
-          set((state) => ({
-            jobs: state.jobs.map((company) => 
-              company.id === companyId ? { ...company, jobs: updatedJobs } : company
-            ),
-          }));
-        } else {
-          console.error("Company does not exist.");
-        }
-      } catch (error) {
-        console.error("Failed to update job", error);
+        console.log("Updated jobs array:", updatedJobs); // Log to confirm changes
+
+        // Update Firestore with the updated jobs array
+        await updateDoc(companyRef, {
+          jobs: updatedJobs,
+        });
+
+        // Update local state using Zustand
+        set((state) => ({
+          jobs: state.jobs.map((company) =>
+            company.id === companyId ? { ...company, jobs: updatedJobs } : company
+          ),
+        }));
+
+        console.log("Job updated successfully in both Firestore and local state.");
+      } else {
+        console.error("Company does not exist.");
       }
-    },
+    } catch (error) {
+      console.error("Failed to update job", error);
+    }
+  },
 
 }));
 

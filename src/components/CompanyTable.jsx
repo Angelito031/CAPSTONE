@@ -1,32 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useJobStore, useAuthStore } from '../store/store';
-import { FaRegEdit, FaRegTrashAlt } from "react-icons/fa";
-import DeleteModal from './DeleteModal'; // Import the delete modal
-import EditModal from './EditModal'; // Import the edit modal
+import { FaRegEdit, FaRegTrashAlt, FaEye } from "react-icons/fa";
+import DeleteModal from './DeleteModal';
+import EditModal from './EditModal';
+import ViewModal from './ViewModal';
 
 const CompanyTable = () => {
   const [data, setData] = useState([]);
   const { user } = useAuthStore();
   const { jobs, fetchJobs, deleteJob, updateJob } = useJobStore();
   const [jobToDelete, setJobToDelete] = useState(null);
+  const [jobToView, setJobToView] = useState(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [jobToEdit, setJobToEdit] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
 
   useEffect(() => {
     fetchJobs();
   }, [fetchJobs]);
 
   useEffect(() => {
-    // Change to filter if expecting multiple jobs for the company
-    const filteredJobs = jobs.find((job) => job.id === "IPer8pdgZGVBOQAkbyVT8YiRMls2"); // Change to company ID
-    if (filteredJobs && filteredJobs.jobs) {
-      setData(filteredJobs.jobs);
-    } else {
-      setData([]); // Reset data if no jobs are found
-    }
-    console.log(filteredJobs);
-  }, [jobs]); // Ensure jobs are a dependency
+    const filteredJobs = jobs.find((job) => job.id === "IPer8pdgZGVBOQAkbyVT8YiRMls2");
+    setData(filteredJobs && filteredJobs.jobs ? filteredJobs.jobs : []);
+  }, [jobs]);
 
   // Delete Handler
   const handleDeleteClick = (job) => {
@@ -49,6 +46,12 @@ const CompanyTable = () => {
     setIsEditModalOpen(true);
   };
 
+  // View Handler
+  const handleViewClick = (job) => {
+    setJobToView(job);
+    setIsViewModalOpen(true);
+  };
+
   const handleSaveEdit = async (updatedJobData) => {
     if (jobToEdit) {
       await updateJob("IPer8pdgZGVBOQAkbyVT8YiRMls2", jobToEdit.jobUid, updatedJobData);
@@ -57,8 +60,6 @@ const CompanyTable = () => {
       setJobToEdit(null);
     }
   };
-
-  console.log(data); // Check if data is correctly populated
 
   return (
     <div className="h-full pt-8 px-4 relative ml-64 w-full">
@@ -77,7 +78,13 @@ const CompanyTable = () => {
             data.map((job, index) => (
               <tr key={index}>
                 <td className="p-3 whitespace-nowrap text-center">{job.jobTitle || "N/A"}</td>
-                <td className="p-3 whitespace-nowrap text-center">view</td>
+                <td className="p-3 whitespace-nowrap text-center">
+                  <button 
+                    className="text-blue-600 hover:underline m-auto flex items-center gap-1" 
+                    onClick={() => handleViewClick(job)}>
+                    <FaEye /> View
+                  </button>
+                </td>
                 <td className="p-3 whitespace-nowrap text-center">{job.status}</td>
                 <td className="p-3 whitespace-nowrap text-center">{job.applicants ? job.applicants.length : 0} / {job.limit}</td>
                 <td className="p-3 whitespace-nowrap text-center">
@@ -117,6 +124,13 @@ const CompanyTable = () => {
         onClose={() => setIsEditModalOpen(false)}
         onSave={handleSaveEdit}
         initialData={jobToEdit || {}}
+      />
+
+      {/* View Modal */}
+      <ViewModal
+        isOpen={isViewModalOpen}
+        onClose={() => setIsViewModalOpen(false)}
+        initialData={jobToView || {}}
       />
     </div>
   );

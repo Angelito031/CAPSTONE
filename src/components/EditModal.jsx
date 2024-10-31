@@ -8,7 +8,7 @@ const EditModal = ({ isOpen, onClose, onSave, initialData }) => {
     jobDescription: '',
     limit: '',
     location: '',
-    skills: ''
+    skills: '',
   });
 
   // Populate formData with initialData whenever the modal is opened or initialData changes
@@ -20,20 +20,29 @@ const EditModal = ({ isOpen, onClose, onSave, initialData }) => {
         jobDescription: initialData.jobDescription || '',
         limit: initialData.limit || '',
         location: initialData.location || '',
-        skills: initialData.skills || ''
+        skills: initialData.skills ? initialData.skills.join(', ') : '', // Join array to string
       });
     }
   }, [initialData]);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = () => {
-    onSave(formData); // Call the onSave function to update the job
+    const cleanedSkills = formData.skills
+      .split(',')
+      .map(skill => skill.trim())
+      .filter(skill => skill !== ''); // Convert to array and remove empty strings
+
+    onSave({
+      ...formData,
+      skills: cleanedSkills,
+    });
     onClose(); // Close the modal
   };
 
@@ -105,7 +114,7 @@ const EditModal = ({ isOpen, onClose, onSave, initialData }) => {
 
         {/* Skills */}
         <div className="mb-4">
-          <label className="block mb-1">Skills</label>
+          <label className="block mb-1">Skills (comma-separated)</label>
           <input
             type="text"
             name="skills"
