@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import FormGroup from './FormGroup';  
 import CreateInputField from './CreateInputField';
 import EditInputField from './EditInputField'; 
-import { useJobStore } from '../store/store';
+import { useJobStore, useAuthStore } from '../store/store';
 import { bouncy } from 'ldrs';
 import EditTextArea from './EditTextArea'; 
 import { FaTrash } from 'react-icons/fa';
@@ -107,7 +107,7 @@ const CompanyCreateJob = ({ user }) => {
       status: 'PENDING' 
     };
 
-    await createJob("IPer8pdgZGVBOQAkbyVT8YiRMls2", jobData);
+    await createJob(user.uid, jobData);
 
     // Reset form and success message after submission
     setTimeout(() => {

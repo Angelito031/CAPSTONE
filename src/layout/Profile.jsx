@@ -12,7 +12,8 @@ import CompanySidebar from '../components/CompanySidebar';
 import { useLocation } from 'react-router-dom';
 import CompanyProfile from '../components/CompanyProfile';
 import CompanyCreateJob from '../components/CompanyCreateJob';
-import CompanyTable from '../components/CompanyTable';
+import CompanyTableJobs from '../components/CompanyTableJobs';
+import CompanyTableApplicants from '../components/CompanyTableApplicants';
 import CompanyEditProfile from '../components/CompanyEditProfile';
 
 const Profile = () => {
@@ -30,8 +31,9 @@ const Profile = () => {
                     <CompanySidebar user={user} />
                     {lastSegment === "profile" ? <CompanyProfile user={user} /> 
                     : lastSegment === "job" ? <CompanyCreateJob user={user}/> 
-                    : lastSegment === "jobs" ? <CompanyTable /> 
-                    : <CompanyEditProfile />}
+                    : lastSegment === "jobs" ? <CompanyTableJobs user={user}/> 
+                    : lastSegment === "applicants" ? <CompanyTableApplicants user={user}/> 
+                    : <CompanyEditProfile  />}
                 </main>
             </>
         );

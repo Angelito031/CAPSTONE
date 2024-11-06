@@ -6,8 +6,8 @@ import { getDownloadURL, uploadBytes, ref } from "firebase/storage";
 import axios from "axios";
 
 const useAuthStore = create((set) => ({
-  isAuth: true,
-  user: {role: "COMPANY"},
+  isAuth: false,
+  user: null,
   servererror: null,
   currentUser: null,
   success: false,
@@ -271,26 +271,28 @@ const useUserStore = create((set) => ({
       console.error("Failed to fetch users", error.message, error.code);
       set({ isFetching: false });
     }
-  }
-  ,
+  },
   updateUser: async (userDetails, image) => {
     try {
       const userRef = doc(db, "users", auth.currentUser.uid);
-      const imageRef = ref(storage, `images/${auth.currentUser.uid}/${image.name}`);
       
-      await uploadBytes(imageRef, image).then(async (snapshot) => {
+      // Only upload the image if it's provided
+      if (image) {
+        const imageRef = ref(storage, `images/${auth.currentUser.uid}/${image.name}`);
+        const snapshot = await uploadBytes(imageRef, image);
         const downloadURL = await getDownloadURL(snapshot.ref);
-        userDetails.profile = downloadURL;
+        userDetails.profile = downloadURL; // Add the download URL to userDetails
+      }
   
-        await updateDoc(userRef, { ...userDetails });
-      });
+      // Update Firestore with user details (including profile URL if image was uploaded)
+      await updateDoc(userRef, { ...userDetails });
   
     } catch (error) {
       console.error("Failed to update user", error.message, error.code);
-      // Handle specific error cases if needed
       if (error.code === "auth/requires-recent-login") {
         console.error("The user needs to re-authenticate before this operation can be executed.");
       }
+      throw error; // Re-throw to handle in handleSubmit
     }
   },  
   updateResume: async (resume, image) => {

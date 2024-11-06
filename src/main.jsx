@@ -124,6 +124,14 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
   {
+    path: "/profile/:userId/table/applicants",
+    element: 
+    <ProtectedRoute requiredRole="COMPANY">
+      <Profile />
+    </ProtectedRoute>,
+    errorElement: <ErrorPage />,
+  },
+  {
     path: "/profile/:userId/edit",
     element: 
     <ProtectedRoute requiredRole="COMPANY">

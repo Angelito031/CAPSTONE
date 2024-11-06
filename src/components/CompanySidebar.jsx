@@ -1,15 +1,14 @@
 import { FaUserEdit } from 'react-icons/fa';
 import {  MdOutlineWork } from 'react-icons/md';
 import { AiFillProfile } from "react-icons/ai";
+import { FaUsers } from "react-icons/fa6";
 import { IoBagAddSharp } from "react-icons/io5";
-import { useAuthStore } from "../store/store";
 import SidebarItem from './SidebarItem'; 
 import React from 'react';
 import { dotWave } from "ldrs";
 
 const CompanySidebar = ({ user }) => {
   dotWave.register();
-
 
   return (
     <>
@@ -46,6 +45,11 @@ const CompanySidebar = ({ user }) => {
               label="Jobs"
               icon={MdOutlineWork}
               to={`/profile/${user.uid}/table/jobs`}
+            />
+            <SidebarItem
+              label="Applicants"
+              icon={FaUsers}
+              to={`/profile/${user.uid}/table/applicants`}
             />
             <li className="px-5">
               <div className="flex flex-row items-center h-8">

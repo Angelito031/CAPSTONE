@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useJobStore, useAuthStore } from '../store/store';
+import { useJobStore } from '../store/store';
 import { FaRegEdit, FaRegTrashAlt, FaEye } from "react-icons/fa";
 import DeleteModal from './DeleteModal';
 import EditModal from './EditModal';
 import ViewModal from './ViewModal';
 
-const CompanyTable = () => {
+const CompanyTableJobs = ({user}) => {
   const [data, setData] = useState([]);
-  const { user } = useAuthStore();
   const { jobs, fetchJobs, deleteJob, updateJob } = useJobStore();
   const [jobToDelete, setJobToDelete] = useState(null);
   const [jobToView, setJobToView] = useState(null)
@@ -21,7 +20,7 @@ const CompanyTable = () => {
   }, [fetchJobs]);
 
   useEffect(() => {
-    const filteredJobs = jobs.find((job) => job.id === "IPer8pdgZGVBOQAkbyVT8YiRMls2");
+    const filteredJobs = jobs.find((job) => job.id === user.uid);
     setData(filteredJobs && filteredJobs.jobs ? filteredJobs.jobs : []);
   }, [jobs]);
 
@@ -33,7 +32,7 @@ const CompanyTable = () => {
 
   const confirmDelete = async () => {
     if (jobToDelete) {
-      await deleteJob("IPer8pdgZGVBOQAkbyVT8YiRMls2", jobToDelete.jobUid);
+      await deleteJob(user.uid, jobToDelete.jobUid);
       fetchJobs();
       setIsDeleteModalOpen(false);
       setJobToDelete(null);
@@ -54,7 +53,7 @@ const CompanyTable = () => {
 
   const handleSaveEdit = async (updatedJobData) => {
     if (jobToEdit) {
-      await updateJob("IPer8pdgZGVBOQAkbyVT8YiRMls2", jobToEdit.jobUid, updatedJobData);
+      await updateJob(user.uid, jobToEdit.jobUid, updatedJobData);
       fetchJobs();
       setIsEditModalOpen(false);
       setJobToEdit(null);
@@ -136,4 +135,4 @@ const CompanyTable = () => {
   );
 };
 
-export default CompanyTable;
+export default CompanyTableJobs;
