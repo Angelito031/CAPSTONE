@@ -1,10 +1,8 @@
 import { FaPhoneAlt, FaEnvelope, FaFacebookF, FaTwitter } from 'react-icons/fa';
-import { useAuthStore } from "../store/store"
 import React from 'react'
 
-const ResumeContact = () => {
-  const {user} = useAuthStore()
-  const resume = user?.resume
+const ResumeContact = ({resume}) => {
+  const userresume = resume ? resume : {};  
 
   return (
     <div className="py-3">
@@ -13,19 +11,19 @@ const ResumeContact = () => {
       <div>
         <div className="flex items-center my-1">
           <FaPhoneAlt className="text-gray-700 hover:text-orange-600 w-6 h-6" />
-          <div className="ml-2">{resume?.contactno}</div>
+          <div className="ml-2">{userresume?.contactno}</div>
         </div>
         <div className="flex items-center my-1">
           <FaEnvelope className="text-gray-700 hover:text-orange-600 w-6 h-6" />
-          <div className="ml-2">{resume?.email}</div>
+          <div className="ml-2">{userresume?.email}</div>
         </div>
         <div className="flex items-center my-1">
           <FaFacebookF className="text-gray-700 hover:text-orange-600 w-6 h-6" />
-          <div className="ml-2">{resume?.facebook}</div>
+          <div className="ml-2">{userresume?.facebook}</div>
         </div>
         <div className="flex items-center my-1">
           <FaTwitter className="text-gray-700 hover:text-orange-600 w-6 h-6" />
-          <div className="ml-2">{resume?.twitter}</div>
+          <div className="ml-2">{userresume?.twitter}</div>
         </div>
       </div>
     </div>

@@ -6,7 +6,7 @@ import Header from '../layout/Header';
 import Footer from './Footer';
 import univ from "../assets/univ.jpg";
 import Resume from '../components/Resume';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useAuthStore } from '../store/store';
 import CompanySidebar from '../components/CompanySidebar';
 import { useLocation } from 'react-router-dom';

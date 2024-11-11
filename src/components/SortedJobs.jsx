@@ -1,30 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import Header from './Header';
-import Footer from './Footer';
+import Header from '../layout/Header';
+import Footer from '../layout/Footer';
 import Job from '../components/Job';
 import { useSearchStore, useJobStore } from '../store/store';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import SearchBox from '../components/SearchBox';
 
-const Jobs = () => {
+const SortedJobs = () => {
   const { searchQuery, setSearchQuery, search } = useSearchStore();
   const { jobs, fetchJobs } = useJobStore();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [flattenedJobs, setFlattenedJobs] = useState([]);
+  const location = useLocation();
+  const pathSegments = location.pathname.split('/');
+  const lastSegment = pathSegments[pathSegments.length - 1];
 
   useEffect(() => {
     setIsLoading(true);
     const fetchJobData = async () => {
-      try {
-        await fetchJobs(); // Await the job fetch
-        setFlattenedJobs(jobs.flatMap((job) => job.jobs || [])); // Flatten after fetch
-      } catch (error) {
-        console.error('Error fetching jobs:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+        try {
+          await fetchJobs();
+      
+          const flattenedJobs = jobs.flatMap((job) => job.jobs || []);
+          const sortedJobs = [...flattenedJobs].sort((a, b) => {
+            const aApplicants = a.applicants || [];
+            const bApplicants = b.applicants || [];
+            return lastSegment === 'asc' ? aApplicants.length - bApplicants.length : bApplicants.length - aApplicants.length;
+          });
+      
+          setFlattenedJobs(sortedJobs);
+        } catch (error) {
+          console.error('Error fetching jobs:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
 
     fetchJobData();
   }, [fetchJobs, jobs]); // Dependency on fetchJobs and jobs
@@ -47,9 +58,10 @@ const Jobs = () => {
   };
 
   const handleCategoryChange = async (event) => {
-    const selectedCategory = event.target.value;
+    event.preventDefault();
+    const category = event.target.value;
     setIsLoading(true);
-    navigate(`/jobs/filter/${selectedCategory}`);
+    navigate(`/jobs/filter/${category}`);
     setIsLoading(false);
   };
 
@@ -100,4 +112,4 @@ const Jobs = () => {
   );
 };
 
-export default Jobs;
+export default SortedJobs;

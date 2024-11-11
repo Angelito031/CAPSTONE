@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import CreateInputField from './CreateInputField'; 
-import { useUserStore } from '../store/store'; 
+import { useUserStore, useAuthStore } from '../store/store'; 
 import { bouncy } from 'ldrs';
 import EditTextArea from './EditTextArea';
 
 const CompanyEditProfile = () => {
   const { updateUser, message, success, setMessage, setSuccess } = useUserStore();
+  const {user,setUser} = useAuthStore();
+  const messageRef = useRef(null)
   const [isLoading, setIsLoading] = useState(false);
-  const [isMatch, setIsMatch] = useState();
   const [formData, setFormData] = useState({
     companyname: '',
     email: '',
@@ -39,6 +40,7 @@ const CompanyEditProfile = () => {
   
     try {
       await updateUser(formData, image); // Pass image along with formData
+      await setUser({...user, ...formData});
       setMessage("Profile updated successfully");
       setSuccess(true);
     } catch (error) {
@@ -47,6 +49,13 @@ const CompanyEditProfile = () => {
       setSuccess(false);
     } finally {
       setIsLoading(false);
+      setFormData({
+        companyname: '',
+        email: '',
+        location: '',
+        description: '',
+      })
+      setImage(null)
       setTimeout(() => {
         setMessage(null);
         setSuccess(null);
@@ -54,6 +63,12 @@ const CompanyEditProfile = () => {
     }
   };
   
+  // Scroll to message when it changes
+  useEffect(() => {
+    if (messageRef.current && message) {
+      messageRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  }, [message]);
 
   return (
     <div className='h-full pt-8 px-4 relative ml-64 w-full'>
@@ -116,13 +131,14 @@ const CompanyEditProfile = () => {
       </form>
 
       <div
+        ref={messageRef}
         className={
-          isMatch || message
-            ? `my-3 h-fit w-1/2 text-wrap animate-pulse rounded ${success ? "bg-green-500" : "bg-red-500"} p-1 text-center`
+          message
+            ? `mx-auto my-3 h-fit w-1/2 text-wrap animate-pulse rounded ${success ? "bg-green-500" : "bg-red-500"} p-1 text-center`
             : "hidden"
         }
       >
-        <p>{isMatch || message || "An error occurred"}</p>
+        <p>{message || "An error occurred"}</p>
       </div>
     </div>
   );

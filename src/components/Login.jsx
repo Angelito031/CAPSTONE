@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/store";
-import univImage from "../assets/univ.jpg";
+import univImage from "../assets/logo1.png";
+import txtlogo from "../assets/txtlogo.png";
 import { Link, useNavigate } from "react-router-dom";
 import React from "react";
 import { dotWave } from "ldrs";
@@ -67,16 +68,13 @@ const Login = () => {
         <img
           src={univImage}
           alt="Universidad De Manila"
-          className="size-cover hidden lg:block lg:w-1/2"
+          className="size-cover hidden lg:block lg:w-1/2 shadow-xl"
         />
         <div className="w-full p-8 lg:w-1/2">
-          <h2 className="text-center text-2xl font-semibold uppercase text-gray-700">
-            Universidad De Manila
-          </h2>
-          <p className="text-center text-xl text-gray-600">
-            On-The-Job Training{" "}
-          </p>
-          <div className="mt-4 flex items-center justify-between">
+          <div className="flex items-center justify-center h-28 z-0 shadow-sm">
+            <img src={txtlogo} className="w-full h-full object-cover" alt="" />
+          </div>
+          <div className="mt-2 flex items-center justify-between">
             <span className="w-1/5 border-b lg:w-1/4"></span>
             <p className="text-center text-xs uppercase text-gray-500">
               login with username

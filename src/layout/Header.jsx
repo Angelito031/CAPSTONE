@@ -1,7 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 import { useAuthStore, useUserStore } from "../store/store";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/udm-logo.jpg"
+import logo from "../assets/logo1.png"
 import { useEffect } from "react";
 import React from "react";
 
@@ -28,13 +28,12 @@ const Header = () => {
 
   return (
     <header className="body-font text-gray-600 shadow-md ">
-      <div className="container mx-auto flex flex-col flex-wrap items-center p-3 md:flex-row">
+      <div className="container mx-auto flex flex-col flex-wrap items-center p-1 md:flex-row">
         <Link
           to={"/"}
-          className="title-font mb-4 flex items-center font-medium text-gray-900 md:mb-0"
+          className="title-font mb-0 h-20 w-20 flex items-center font-medium text-gray-900 md:mb-0"
         >
-          <img src={logo} alt="UDM Logo" className="h-14 w-14 rounded-full p-2 text-white"/>
-          <span className="ml-3 text-xl">On-The-Job-Training</span>
+          <img src={logo} alt="UDM Logo" className="h-full w-full object-fill"/>
         </Link>
         <nav className="flex flex-wrap items-center justify-center text-base md:ml-4 md:mr-auto md:border-l md:border-gray-400 md:py-1 md:pl-4">
           <NavLink
@@ -48,7 +47,7 @@ const Header = () => {
             Home
           </NavLink>
           <NavLink
-            to={"/jobs"}
+            to={"/jobs/filter/all"}
             className={({ isActive }) =>
               isActive
                 ? "mr-5 underline text-green-900 font-semibold shadow-sm hover:text-gray-900"

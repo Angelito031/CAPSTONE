@@ -1,11 +1,9 @@
-import { useAuthStore } from "../store/store"
 import React from "react"
 
-const ResumeSkills = () => {
-  const { user } = useAuthStore()
+const ResumeSkills = ({resume}) => {
 
   // Handle case where user or resume is undefined
-  const skillsList = user?.resume?.skills || []
+  const skillsList = resume?.skills || []
 
   return (
     <div className="py-3">

@@ -1,10 +1,8 @@
-import { useAuthStore } from "../store/store"
 import userdefaultimg from "../assets/user-default-icon.jpg";
 import React from "react";
 
-const ResumeTop = () => {
-  const {user} = useAuthStore()
-  const resume = user?.resume
+const ResumeTop = ({resume}) => {
+  const userresume = resume ? resume : {};
   const resumeimage = resume?.image || userdefaultimg
 
   return (
@@ -18,7 +16,7 @@ const ResumeTop = () => {
       </div>
       <div className="w-2/3 sm:text-center mt-10 text-start flex pl-8 items-center">
         <p className="font-poppins font-bold text-7xl sm:text-4xl">
-          {resume?.firstname} {resume?.lastname}
+          {userresume?.firstname} {userresume?.lastname}
         </p>
       </div>
     </div>

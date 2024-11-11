@@ -125,7 +125,6 @@ const useJobStore = create((set) => ({
   jobs: [],
   message: null,
   success: false,
-
   // Setters for success and message
   setSuccess: (success) => set({ success }),
   setMessage: (message) => set({ message }),
@@ -271,6 +270,15 @@ const useUserStore = create((set) => ({
       console.error("Failed to fetch users", error.message, error.code);
       set({ isFetching: false });
     }
+  },
+  fetchUsersPublic: async () => {
+    const querySnapshot = await getDocs(collection(db, "users"));
+    const userList = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    set({ users: userList });
+    return userList; // Return the array of users
   },
   updateUser: async (userDetails, image) => {
     try {

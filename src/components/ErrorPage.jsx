@@ -35,7 +35,7 @@ const ErrorPage = () => {
           onClick={handleError}
           className="flex items-center justify-center rounded-md border border-green-500 px-5 py-2 text-xl text-black hover:bg-green-500 hover:text-white"
         >
-          Uhhh LOGOUT!
+          Please Re-Login
         </button>
       </div>
     </div>

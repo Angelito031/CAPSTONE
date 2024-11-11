@@ -17,8 +17,9 @@ const CompanyProfile = ({user}) => {
                     <div className="text-center px-14">
                         <h2 className="text-gray-800 text-3xl font-bold">{user?.companyname}</h2>
                         <p className="text-gray-500 text-sm">{user?.location}</p>
+                        <p className="text-gray-500 text-sm">{user?.email}</p>
                         <hr className="mt-6" />
-                        <p className="mt-2 text-gray-500 text-sm">{user?.description}</p>
+                        <p className="mt-2 pb-3 text-gray-500 text-sm">{user?.description}</p>
                     </div>
                 </div>
             </div>

@@ -14,6 +14,12 @@ import ProtectedRoute from "./components/ProtectedRoutes.jsx";
 import Admin from "./layout/Admin.jsx";
 import AdminTable from "./layout/AdminTable.jsx";
 import AdminCreateAccount from "./layout/AdminCreateAccount.jsx";
+import StudentListing from "./layout/StudentListing.jsx";
+import ViewStudentProfile from "./components/ViewStudentProfile.jsx";
+import SortedJobs from "./components/SortedJobs.jsx";
+import JobDetails from "./components/JobDetails.jsx";
+import CompanyListing from "./components/CompanyListing.jsx";
+import ViewCompanyProfile from "./components/ViewCompanyProfile.jsx";
 
 const router = createBrowserRouter([
   {
@@ -29,57 +35,60 @@ const router = createBrowserRouter([
       <Jobs />
     </ProtectedRoute>,
     errorElement: <ErrorPage />,
-    children: [
-      {
-        path: "/jobs/filter/:filter",
-        element: 
-        <ProtectedRoute requiredRole="STUDENT">
-          <Jobs />
-        </ProtectedRoute>,
-        errorElement: <ErrorPage />,
-      },
-      {
-        path: "/jobs/search/:searchQuery",
-        element: 
-        <ProtectedRoute requiredRole="STUDENT">
-          <Jobs />
-        </ProtectedRoute>,
-        errorElement: <ErrorPage />,
-      },
-    ],
   },
   {
-    path: "/job/:jobId",
+    path: "/jobs/filter/:filter",
     element: 
     <ProtectedRoute requiredRole="STUDENT">
-      <Home />
+      <SortedJobs />
     </ProtectedRoute>,
     errorElement: <ErrorPage />,
   },
-  
   {
-    path: "/students",
-    element: <Home />,
+    path: "/view/job/:jobId",
+    element: 
+    <ProtectedRoute requiredRole="STUDENT">
+      <JobDetails />
+    </ProtectedRoute>,
     errorElement: <ErrorPage />,
   },
   {
-    path: "/student/:studentId",
-    element: <Home />,
+    path: "/jobs/search/:searchQuery",
+    element: 
+    <ProtectedRoute requiredRole="STUDENT">
+      <Jobs />
+    </ProtectedRoute>,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/students",
+    element:
+    <ProtectedRoute requiredRole="COMPANY">
+      <StudentListing />,
+    </ProtectedRoute>,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/view/student/:studentId",
+    element: 
+    <ProtectedRoute requiredRole="COMPANY">
+     <ViewStudentProfile />,
+   </ProtectedRoute>,
     errorElement: <ErrorPage />,
   },
   {
     path: "/companies",
     element: 
     <ProtectedRoute requiredRole="STUDENT">
-      <Home />
+      <CompanyListing />
     </ProtectedRoute>,
     errorElement: <ErrorPage />,
   },
   {
-    path: "/company/:companyId",
+    path: "/view/company/:companyId",
     element: 
     <ProtectedRoute requiredRole="STUDENT">
-      <Home />
+      <ViewCompanyProfile />
     </ProtectedRoute>,
     errorElement: <ErrorPage />,
   },
