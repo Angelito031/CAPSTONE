@@ -73,10 +73,6 @@ const useAuthStore = create((set) => ({
           uid: userId,
           resume: {}
         });
-    
-        await setDoc(doc(db, "usersChats", userId), {
-          chats: []
-        });
       
     } catch (error) {
       console.error("Registration failed", error.message, error.code);
@@ -125,6 +121,7 @@ const useJobStore = create((set) => ({
   jobs: [],
   message: null,
   success: false,
+
   // Setters for success and message
   setSuccess: (success) => set({ success }),
   setMessage: (message) => set({ message }),
@@ -133,8 +130,11 @@ const useJobStore = create((set) => ({
   // Fetch jobs from Firestore
   fetchJobs: async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'jobLists'));
-      const jobsArray = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const querySnapshot = await getDocs(collection(db, "jobLists"));
+      const jobsArray = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
       set({ jobs: jobsArray });
     } catch (error) {
       console.error("Failed to fetch jobs", error);
@@ -142,59 +142,51 @@ const useJobStore = create((set) => ({
   },
 
   // Create a job in Firestore
-createJob: async (userId, job) => {
-  try {
-    const docRef = doc(db, "jobLists", userId);
-    const docSnap = await getDoc(docRef);
+  createJob: async (userId, job) => {
+    try {
+      const docRef = doc(db, "jobLists", userId);
+      const docSnap = await getDoc(docRef);
 
-    console.log("Fetched document data:", docSnap.exists() ? docSnap.data() : "No document found"); // Log document data
+      if (docSnap.exists()) {
+        const currentData = docSnap.data();
+        const updatedJobs = Array.isArray(currentData.jobs)
+          ? [...currentData.jobs, job]
+          : [job];
+        await updateDoc(docRef, { jobs: updatedJobs });
+      } else {
+        await setDoc(docRef, { jobs: [job] });
+      }
 
-    if (docSnap.exists()) {
-      // If the document exists, update the jobs array
-      const currentData = docSnap.data();
-      const updatedJobs = Array.isArray(currentData.jobs) ? [...currentData.jobs, job] : [job]; // Ensure jobs is an array
-
-      console.log("Updated jobs array:", updatedJobs); // Log updated jobs array
-
-      await updateDoc(docRef, { jobs: updatedJobs });
-    } else {
-      // If the document doesn't exist, create a new document with the job
-      await setDoc(docRef, { jobs: [job] });
+      set((state) => ({
+        jobs: Array.isArray(state.jobs) ? [...state.jobs, job] : [job],
+        success: true,
+        message: "Job created successfully",
+      }));
+    } catch (error) {
+      set((state) => ({
+        success: false,
+        message: "Failed to create job",
+      }));
+      console.error("Failed to create job", error);
     }
-
-    // Update the jobs state after job creation
-    set((state) => ({
-      jobs: Array.isArray(state.jobs) ? [...state.jobs, job] : [job], // Ensure state.jobs is an array
-      success: true,
-      message: "Job created successfully",
-    }));
-
-  } catch (error) {
-    // Set failure and message in case of error
-    set((state) => ({
-      success: false,
-      message: "Failed to create job",
-    }));
-    console.error("Failed to create job", error);
-  }
-},
+  },
 
   // Delete a job in Firestore
   deleteJob: async (companyId, jobUid) => {
     try {
-      const companyRef = doc(db, 'jobLists', companyId);
+      const companyRef = doc(db, "jobLists", companyId);
       const companySnapshot = await getDoc(companyRef);
-      
+
       if (companySnapshot.exists()) {
         const jobs = companySnapshot.data().jobs || [];
         const updatedJobs = jobs.filter((job) => job.jobUid !== jobUid);
-        
+
         await updateDoc(companyRef, {
           jobs: updatedJobs,
         });
-        
+
         set((state) => ({
-          jobs: state.jobs.map((company) => 
+          jobs: state.jobs.map((company) =>
             company.id === companyId ? { ...company, jobs: updatedJobs } : company
           ),
         }));
@@ -203,29 +195,67 @@ createJob: async (userId, job) => {
       console.error("Failed to delete job", error);
     }
   },
+
   // Update a job in Firestore
   updateJob: async (companyId, jobId, updatedDataJob) => {
     try {
-      const companyRef = doc(db, 'jobLists', companyId);
+      const companyRef = doc(db, "jobLists", companyId);
       const companySnapshot = await getDoc(companyRef);
 
       if (companySnapshot.exists()) {
         const companyData = companySnapshot.data();
         const jobs = Array.isArray(companyData.jobs) ? [...companyData.jobs] : [];
 
-        // Find and update the job with matching jobUid, ensuring skills remain an array
         const updatedJobs = jobs.map((job) => {
           if (job.jobUid === jobId) {
             return {
               ...job,
               ...updatedDataJob,
-              skills: Array.isArray(updatedDataJob.skills) ? updatedDataJob.skills : job.skills, // Ensure skills is an array
+              skills: Array.isArray(updatedDataJob.skills) ? updatedDataJob.skills : job.skills,
             };
           }
           return job;
         });
 
-        console.log("Updated jobs array:", updatedJobs); // Log to confirm changes
+        await updateDoc(companyRef, {
+          jobs: updatedJobs,
+        });
+
+        set((state) => ({
+          jobs: state.jobs.map((company) =>
+            company.id === companyId ? { ...company, jobs: updatedJobs } : company
+          ),
+        }));
+      } else {
+        console.error("Company does not exist.");
+      }
+    } catch (error) {
+      console.error("Failed to update job", error);
+    }
+  },
+
+  // Update applicants for a specific job
+  updateApplicants: async (companyId, jobUid, applicant) => {
+    try {
+      const companyRef = doc(db, "jobLists", companyId);
+      const companySnapshot = await getDoc(companyRef);
+
+      if (companySnapshot.exists()) {
+        const companyData = companySnapshot.data();
+        const jobs = Array.isArray(companyData.jobs) ? [...companyData.jobs] : [];
+
+        // Update the applicants array for the matching job
+        const updatedJobs = jobs.map((job) => {
+          if (job.jobUid === jobUid) {
+            return {
+              ...job,
+              applicants: Array.isArray(job.applicants)
+                ? [...job.applicants.filter((app) => app.uid !== applicant.uid), applicant]
+                : [applicant],
+            };
+          }
+          return job;
+        });
 
         // Update Firestore with the updated jobs array
         await updateDoc(companyRef, {
@@ -238,18 +268,15 @@ createJob: async (userId, job) => {
             company.id === companyId ? { ...company, jobs: updatedJobs } : company
           ),
         }));
-
-        console.log("Job updated successfully in both Firestore and local state.");
       } else {
         console.error("Company does not exist.");
       }
     } catch (error) {
-      console.error("Failed to update job", error);
+      set({ success: false, message: "Failed to update applicant" });
+      console.error("Failed to update applicants", error);
     }
   },
-
 }));
-
 
 const useUserStore = create((set) => ({
   users: [],
@@ -359,7 +386,7 @@ const useUserStore = create((set) => ({
       const userDocData = {
         email,
         department: lastSegment === 'user' ? 'College of Engineering and Technology' : companyname,
-        role: lastSegment === 'user' ? 'STUDENT' : 'COMPANY',
+        role: lastSegment === 'user' ? 'STUDENT' : lastSegment === 'company' ? 'COMPANY' : 'ADMIN',
         uid: userId,
       };
 
@@ -374,10 +401,6 @@ const useUserStore = create((set) => ({
       }
 
       await setDoc(doc(db, "users", userId), userDocData);
-
-      await setDoc(doc(db, "usersChats", userId), {
-        chats: []
-      });
 
       if(lastSegment === 'company') {
         await setDoc(doc(db, "jobLists", userId), {
@@ -438,19 +461,4 @@ const useUserStore = create((set) => ({
   
 }));
 
-const useSearchStore = create((set) => ({
-  searchQuery: "",
-  setSearchQuery: (search) => set({ searchQuery: search }),
-  search: async (query) => {
-    try {
-      const response = await axios.get(
-        `/api/jobs?search=${encodeURIComponent(query)}`,
-      );
-      set({ jobs: response.data });
-    } catch (error) {
-      console.error("Failed to search jobs", error);
-    }
-  },
-}));
-
-export { useAuthStore, useJobStore, useUserStore, useSearchStore };
+export { useAuthStore, useJobStore, useUserStore };

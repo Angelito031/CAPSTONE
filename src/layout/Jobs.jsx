@@ -1,46 +1,70 @@
-import React, { useState, useEffect } from 'react';
-import Header from './Header';
-import Footer from './Footer';
-import Job from '../components/Job';
-import { useSearchStore, useJobStore } from '../store/store';
-import { useNavigate } from 'react-router-dom';
-import SearchBox from '../components/SearchBox';
+import React, { useState, useEffect } from "react";
+import Header from "./Header";
+import Footer from "./Footer";
+import Job from "../components/Job";
+import Fuse from "fuse.js";
+import { useJobStore } from "../store/store";
+import { useNavigate } from "react-router-dom";
+import SearchBox from "../components/SearchBox";
 
 const Jobs = () => {
-  const { searchQuery, setSearchQuery, search } = useSearchStore();
-  const { jobs, fetchJobs } = useJobStore();
+  const { jobs, fetchJobs } = useJobStore(); // Zustand action for fetching jobs
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [flattenedJobs, setFlattenedJobs] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredJobs, setFilteredJobs] = useState([]);
+  const [userSkills, setUserSkills] = useState(["React", "JavaScript", "CSS"]); // Example skills
 
   useEffect(() => {
     setIsLoading(true);
     const fetchJobData = async () => {
       try {
-        await fetchJobs(); // Await the job fetch
-        setFlattenedJobs(jobs.flatMap((job) => job.jobs || [])); // Flatten after fetch
+        await fetchJobs(); // Fetch jobs
+        setFlattenedJobs(jobs.flatMap((job) => job.jobs || [])); // Flatten nested structure
       } catch (error) {
-        console.error('Error fetching jobs:', error);
+        console.error("Error fetching jobs:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchJobData();
-  }, [fetchJobs, jobs]); // Dependency on fetchJobs and jobs
+  }, [fetchJobs, jobs]);
+
+  // Use Fuse.js for fuzzy search matching based on skills
+  useEffect(() => {
+    if (flattenedJobs.length === 0 || userSkills.length === 0) return;
+
+    const fuse = new Fuse(flattenedJobs, {
+      keys: ["skills", "jobTitle", "jobDescription", "location"],
+      threshold: 0.3, // Adjust threshold for fuzziness
+    });
+
+    const filtered = fuse.search(userSkills.join(" ")); // Search for skills
+    const topFilteredJobs = filtered.map((result) => result.item).slice(0, 4); // Limit to top 4 jobs
+    setFilteredJobs(topFilteredJobs);
+  }, [flattenedJobs, userSkills]);
 
   const handleInputChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
-  const handleSubmit = async (event) => {
+  const handleSearchSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
     try {
-      await search(searchQuery);
+      const fuse = new Fuse(flattenedJobs, {
+        keys: ["skills", "jobTitle", "jobDescription", "location"],
+        threshold: 0.3,
+      });
+
+      const results = fuse.search(searchQuery); // Search based on input query
+      const searchResults = results.map((result) => result.item);
+      setFilteredJobs(searchResults); // Update displayed jobs
       navigate(`/jobs/search/${searchQuery}`);
     } catch (error) {
-      console.error('Error during search:', error);
+      console.error("Error during search:", error);
     } finally {
       setIsLoading(false);
     }
@@ -49,8 +73,27 @@ const Jobs = () => {
   const handleCategoryChange = async (event) => {
     const selectedCategory = event.target.value;
     setIsLoading(true);
-    navigate(`/jobs/filter/${selectedCategory}`);
-    setIsLoading(false);
+
+    try {
+      let filtered = [];
+      if (selectedCategory === "rec") {
+        // Show recommendations (top matches)
+        filtered = filteredJobs;
+      } else if (selectedCategory === "asc") {
+        filtered = [...flattenedJobs].sort((a, b) => a.jobTitle.localeCompare(b.jobTitle));
+      } else if (selectedCategory === "desc") {
+        filtered = [...flattenedJobs].sort((a, b) => b.jobTitle.localeCompare(a.jobTitle));
+      } else {
+        filtered = flattenedJobs;
+      }
+
+      setFilteredJobs(filtered);
+      navigate(`/jobs/filter/${selectedCategory}`);
+    } catch (error) {
+      console.error("Error during category filtering:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -74,7 +117,7 @@ const Jobs = () => {
               <SearchBox
                 searchQuery={searchQuery}
                 handleInputChange={handleInputChange}
-                handleSubmit={handleSubmit}
+                handleSubmit={handleSearchSubmit}
                 wsize="lg:w-2/5"
               />
             </div>
@@ -84,8 +127,8 @@ const Jobs = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {isLoading ? (
                 <div className="w-full text-center text-gray-500">Loading...</div>
-              ) : flattenedJobs && flattenedJobs.length > 0 ? (
-                flattenedJobs.map((job) => <Job key={job.id} {...job} />)
+              ) : filteredJobs && filteredJobs.length > 0 ? (
+                filteredJobs.map((job) => <Job key={job.id} {...job} />)
               ) : (
                 <div className="w-full text-center text-gray-500">
                   No jobs available.

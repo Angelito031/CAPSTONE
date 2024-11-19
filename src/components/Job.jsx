@@ -21,7 +21,7 @@ const Job = ({ jobUid, jobTitle, limit, location, jobDescription = "", applicant
           {"Applicants: " + applicantCount + "/" + limit} <span>{location}</span>
         </h3>
         <h2 className="text-lg font-semibold mb-1">{jobTitle}</h2>
-        <p class="text-xs text-gray-500 mb-4 break-words truncate max-w-xs">
+        <p className="text-xs text-gray-500 mb-4 break-words truncate max-w-xs">
             {shortDescription}
         </p>
         <Link

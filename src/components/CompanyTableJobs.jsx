@@ -5,15 +5,19 @@ import DeleteModal from './DeleteModal';
 import EditModal from './EditModal';
 import ViewModal from './ViewModal';
 
-const CompanyTableJobs = ({user}) => {
+const CompanyTableJobs = ({ user }) => {
   const [data, setData] = useState([]);
   const { jobs, fetchJobs, deleteJob, updateJob } = useJobStore();
   const [jobToDelete, setJobToDelete] = useState(null);
-  const [jobToView, setJobToView] = useState(null)
+  const [jobToView, setJobToView] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [jobToEdit, setJobToEdit] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8; // Number of jobs per page
+  const totalPages = Math.ceil(data.length / itemsPerPage);
 
   useEffect(() => {
     fetchJobs();
@@ -23,6 +27,15 @@ const CompanyTableJobs = ({user}) => {
     const filteredJobs = jobs.find((job) => job.id === user.uid);
     setData(filteredJobs && filteredJobs.jobs ? filteredJobs.jobs : []);
   }, [jobs]);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const paginatedData = data.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   // Delete Handler
   const handleDeleteClick = (job) => {
@@ -73,14 +86,15 @@ const CompanyTableJobs = ({user}) => {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {data && data.length > 0 ? (
-            data.map((job, index) => (
+          {paginatedData && paginatedData.length > 0 ? (
+            paginatedData.map((job, index) => (
               <tr key={index}>
                 <td className="p-3 whitespace-nowrap text-center">{job.jobTitle || "N/A"}</td>
                 <td className="p-3 whitespace-nowrap text-center">
-                  <button 
-                    className="text-blue-600 hover:underline m-auto flex items-center gap-1" 
-                    onClick={() => handleViewClick(job)}>
+                  <button
+                    className="text-blue-600 hover:underline m-auto flex items-center gap-1"
+                    onClick={() => handleViewClick(job)}
+                  >
                     <FaEye /> View
                   </button>
                 </td>
@@ -109,6 +123,23 @@ const CompanyTableJobs = ({user}) => {
           )}
         </tbody>
       </table>
+
+      {/* Pagination */}
+      <div className="flex justify-center mt-4">
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index}
+            className={`px-3 py-1 mx-1 rounded-md ${
+              currentPage === index + 1
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700"
+            }`}
+            onClick={() => handlePageChange(index + 1)}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
 
       {/* Delete Confirmation Modal */}
       <DeleteModal

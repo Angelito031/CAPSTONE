@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import Job from "./Job";
 import Fuse from "fuse.js";
@@ -10,24 +10,59 @@ const TopRecommendation = () => {
   const { user } = useAuthStore();
   const userSkills = user?.resume?.skills || [];
 
+  console.log("User Skills:", userSkills); // Debugging log for user skills
+
+  // Fetch jobs once when the component mounts
   useEffect(() => {
     fetchJobs();
   }, [fetchJobs]);
 
-  // Flatten the jobs structure if they are nested within objects
-  const flattenedJobs = jobs.flatMap((job) => job.jobs || []);
+  // Memoize flattened and accepted jobs to avoid unnecessary recalculations
+  const acceptedJobs = useMemo(
+    () =>
+      jobs
+        .flatMap((job) => job.jobs || [])
+        .filter((job) => job.status === "ACCEPTED"),
+    [jobs]
+  );
 
-  // Use Fuse.js for fuzzy search matching based on skills
+  // Debugging log for accepted jobs
   useEffect(() => {
-    const fuse = new Fuse(flattenedJobs, {
-      keys: ["skills", "jobTitle", "jobDescription", "location"],
-      threshold: 0.3, // Adjust threshold for fuzziness
-    });
+    console.log("Accepted Jobs:", acceptedJobs);
+  }, [acceptedJobs]);
 
-    const filtered = fuse.search(userSkills.join(" ")); // Search for skills
-    const topFilteredJobs = filtered.map(result => result.item).slice(0, 4); // Limit to top 4 jobs
-    setFilteredJobs(topFilteredJobs);
-  }, [flattenedJobs, userSkills]);
+  // Perform job filtering using Fuse.js
+  useEffect(() => {
+    if (acceptedJobs.length > 0 && userSkills.length > 0) {
+      // Normalize skills to handle case sensitivity
+      const normalizedUserSkills = userSkills.map((skill) =>
+        skill.toLowerCase()
+      );
+      const normalizedJobs = acceptedJobs.map((job) => ({
+        ...job,
+        skills: job.skills.map((skill) => skill.toLowerCase()),
+      }));
+
+      console.log("Normalized User Skills:", normalizedUserSkills); // Debugging log
+      console.log("Normalized Jobs:", normalizedJobs); // Debugging log
+
+      const fuse = new Fuse(normalizedJobs, {
+        keys: ["skills", "jobTitle", "jobDescription", "location"],
+        threshold: 0.5, // Adjust threshold for fuzziness
+      });
+
+      const searchQuery = normalizedUserSkills.join(" "); // Combine normalized user skills
+      const filtered = fuse.search(searchQuery);
+
+      console.log("Filtered Results:", filtered); // Debugging log for filtered results
+
+      const topFilteredJobs = filtered.map((result) => result.item).slice(0, 5); // Limit to top 5 jobs
+      setFilteredJobs(topFilteredJobs);
+    } else {
+      console.log("No matching jobs or skills available."); // Debugging log for no matches
+      setFilteredJobs([]); // Reset if no matching jobs or skills
+    }
+  }, [acceptedJobs, userSkills]);
 
   return (
     <section className="body-font text-gray-600 shadow-md">
@@ -41,17 +76,21 @@ const TopRecommendation = () => {
               Recommended Jobs
             </h1>
             <Link
-              to={"/recommendation"}
+              to={"/jobs/filter/rec"}
               className="pl-0 text-right text-base leading-relaxed text-blue-400 hover:underline sm:w-3/5 sm:pl-10"
             >
               View More
             </Link>
           </div>
         </div>
-        <div className="-mx-4 -mb-10 -mt-4 px-1 flex flex-wrap sm:-m-4">
-          {filteredJobs.map((job) => (
-            <Job key={job.jobUid} {...job} />
-          ))}
+        <div className="-mx-4 -mb-10 -mt-4 px-1 flex justify-center flex-wrap sm:-m-4">
+          {user?.resume == null ? (
+            <p className="text-center">Please Update Your Resume</p>
+          ) : filteredJobs.length > 0 ? (
+            filteredJobs.map((job) => <Job key={job.jobUid} {...job} />)
+          ) : (
+            <p className="text-center">No Recommended Jobs Found</p>
+          )}
         </div>
       </div>
     </section>

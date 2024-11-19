@@ -19,10 +19,6 @@ const ProfileButtons = ( {setIsResumeOpen} ) => {
       >
         Resume
       </button>
-
-      <button className="text-white h-10 lg:h-auto py-2 px-4 uppercase rounded bg-gray-700 hover:bg-gray-800 shadow hover:shadow-lg font-extralight lg:font-medium transition transform hover:-translate-y-0.5">
-        Message
-      </button>
     </div>
   );
 };

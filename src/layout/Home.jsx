@@ -1,17 +1,14 @@
 import { useAuthStore } from "../store/store";
-import { useSearchStore } from "../store/store";
 import { Navigate, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import univ from "../assets/univ.jpg";
 import Header from "./Header";
 import Footer from "./Footer";
 import TopRecommendation from "../components/TopRecommendation";
-import SearchBox from "../components/SearchBox";
 import React from "react";
 
 const Home = () => {
   const { isAuth, user } = useAuthStore();
-  const { searchQuery, setSearchQuery, search } = useSearchStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,23 +16,6 @@ const Home = () => {
       navigate('/admin/dashboard')
     }
   }, [user])  
-  
-
-  const handleInputChange = (event) => {
-    setSearchQuery(event.target.value);
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-   
-    console.log(searchQuery)
-    //const response = await search(searchQuery);
-    // if (response.status === 204) {
-    //   navigate("/not-found");
-    // } 
-      navigate(`/jobs/search/${searchQuery}`);
-
-  };
 
   return isAuth ? (
     <div className="App">
@@ -56,7 +36,6 @@ const Home = () => {
                 de Manila&apos;s OJT ensures graduates are well-prepared for the
                 job market.
               </p>
-              <SearchBox handleInputChange={handleInputChange} handleSubmit={handleSubmit} searchQuery={searchQuery} wsize={"w-full"} />
             </div>
             <div className="w-5/6 md:w-1/2 lg:w-full lg:max-w-lg">
               <img
@@ -67,7 +46,7 @@ const Home = () => {
             </div>
           </div>
         </section>
-        <TopRecommendation />
+        {user?.role === "STUDENT" && <TopRecommendation />}
       </main>
       <Footer />
     </div>

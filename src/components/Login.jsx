@@ -71,7 +71,7 @@ const Login = () => {
           className="size-cover hidden lg:block lg:w-1/2 shadow-xl"
         />
         <div className="w-full p-8 lg:w-1/2">
-          <div className="flex items-center justify-center h-28 z-0 shadow-sm">
+          <div className="flex items-center justify-center h-28 z-0">
             <img src={txtlogo} className="w-full h-full object-cover" alt="" />
           </div>
           <div className="mt-2 flex items-center justify-between">

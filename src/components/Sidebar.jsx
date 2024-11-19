@@ -8,16 +8,23 @@ import axios from 'axios';
 import { dotWave } from "ldrs";
 
 const Sidebar = () => {
-  const { logout } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   dotWave.register();
 
   const handleContinue = async () => {
     setIsLoading(true);
-    await axios.delete('http://127.0.0.1:9000/api/resetDatabase');
-    setShowModal(false);
-    setIsLoading(false);
+    try {
+      await axios.delete('http://127.0.0.1:9000/api/resetDatabase');
+      setShowModal(false);
+      setIsLoading(false);
+    } catch (error) {
+      console.log("Failed to reset database", error.message, error.code);
+      setIsLoading(false);
+      setShowModal(false);
+    }
+    
   };
 
   return (
@@ -50,6 +57,11 @@ const Sidebar = () => {
               to="/admin/create/user"  
             />
             <SidebarItem
+              label="Admin"
+              icon={FaUserPlus}
+              to="/admin/create/admin"  
+            />
+            <SidebarItem
               label="Company"
               icon={BsBuildingFillAdd}
               to="/admin/create/company"  
@@ -79,7 +91,9 @@ const Sidebar = () => {
                 <div className="text-sm font-light tracking-wide text-gray-500">Settings</div>
               </div>
             </li>
-            <SidebarItem label="Reset Database" icon={FaDatabase} onClick={() => setShowModal(true)}/>
+            {user?.role === 'SADMIN' && (
+              <SidebarItem label="Reset Database" icon={FaDatabase} onClick={() => setShowModal(true)}/>
+            )}
             <SidebarItem
               label="Logout"
               icon={FaSignOutAlt}

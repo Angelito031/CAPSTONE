@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useUserStore } from '../store/store'
 import userdefaultimg from "../assets/user-default-icon.jpg";
 import loading from "../assets/loading.gif";
-import { FaArrowLeft, FaMessage, FaEye } from 'react-icons/fa6';
+import { FaArrowLeft, FaEye } from 'react-icons/fa6';
 import ViewResume from './ViewResume';
 
 const ViewStudentProfile = () => {
@@ -42,12 +42,6 @@ const ViewStudentProfile = () => {
         setIsResumeOpen(false);
     };
 
-    // Handle Message action
-    const handleMessage = () => {
-        console.log("Message clicked");
-        // Implement message functionality here
-    };
-
     if (!user) {
         return (
             <div className="flex justify-center items-center h-screen">
@@ -66,10 +60,7 @@ const ViewStudentProfile = () => {
                 <div className='flex justify-end items-center gap-3'>
                     <button onClick={handleViewResume} className="text-white h-5 lg:h-fit px-4 py-2 rounded-md bg-blue-500 hover:bg-blue-600 shadow hover:shadow-lg font-extralight lg:font-medium transition transform hover:-translate-y-0.5 mb-2 flex justify-center items-center">
                         <FaEye className='mr-2'/>RESUME
-                    </button>
-                    <button onClick={handleMessage} className="text-white h-5 lg:h-fit px-4 py-2 rounded-md bg-green-500 hover:bg-green-600 shadow hover:shadow-lg font-extralight lg:font-medium transition transform hover:-translate-y-0.5 mb-2 flex justify-center items-center">
-                        <FaMessage className='mr-2'/>MESSAGE
-                    </button>
+                    </button> 
                 </div>
             </div>
 

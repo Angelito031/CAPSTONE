@@ -31,12 +31,6 @@ const ViewCompanyProfile = () => {
         getUsers();
     }, [fetchUsersPublic, lastSegment]);
 
-    // Handle Message action
-    const handleMessage = () => {
-        console.log("Message clicked");
-        // Implement message functionality here
-    };
-
     if (!user) {
         return (
             <div className="flex justify-center items-center h-screen">
@@ -52,9 +46,6 @@ const ViewCompanyProfile = () => {
                 <button onClick={() => navigate(-1)} className="text-white h-5 lg:h-fit px-4 py-2 rounded-md bg-gray-500 hover:bg-gray-600 shadow hover:shadow-lg font-extralight lg:font-medium transition transform hover:-translate-y-0.5 mb-2 flex justify-center items-center">
                     <FaArrowLeft className='mr-2'/>BACK
                 </button>
-                    <button onClick={handleMessage} className="text-white h-5 lg:h-fit px-4 py-2 rounded-md bg-green-500 hover:bg-green-600 shadow hover:shadow-lg font-extralight lg:font-medium transition transform hover:-translate-y-0.5 mb-2 flex justify-center items-center">
-                        <FaMessage className='mr-2'/>MESSAGE
-                    </button>
             </div>
 
             <div className="h-fit lg:w-full xl:w-2/7 sm:w-full md:w-2/3 bg-white shadow-lg transform duration-200 easy-in-out">

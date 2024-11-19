@@ -1,5 +1,5 @@
-import { useAuthStore, useUserStore } from "../store/store";
-import React, { useEffect, useState } from "react";
+import { useAuthStore, useUserStore, useJobStore } from "../store/store";
+import React, {  useEffect, useState } from "react";
 import { lineSpinner } from "ldrs";
 import CreateInputField from "./CreateInputField";
 import { useLocation } from 'react-router-dom';
@@ -12,6 +12,7 @@ const Table = ({ data }) => {
     const lastSegment = pathSegments[pathSegments.length - 1];
     const { removeAccount, fetchUsers,  message, setMessage, success, setSuccess, adminUpdateUser } = useUserStore()
     const { user } = useAuthStore()
+    const {jobs, fetchJobs, updateJob} = useJobStore()
     const { uid, role } = user
     const [showModal, setShowModal] = useState(false); 
     const [showEditModal, setShowEditModal] = useState(false); 
@@ -28,6 +29,24 @@ const Table = ({ data }) => {
       role: "",
   });
     lineSpinner.register()
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5; // Number of jobs per page
+    const totalPages = Math.ceil(data.length / itemsPerPage);
+  
+
+    const handlePageChange = (pageNumber) => {
+      setCurrentPage(pageNumber);
+    };
+  
+    const paginatedData = data.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
+    );
+
+    useEffect(() => {
+        fetchJobs()
+    }, [])
 
     const handleChange = (e) => {
       const { name, value } = e.target;
@@ -90,6 +109,47 @@ const Table = ({ data }) => {
     setShowModal(false); 
     };
 
+    const handleAcceptJob = async (jobid) => {
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const companyUid = jobs.find((job) =>
+          job.jobs.find((sjob) => sjob.jobUid === jobid)
+        )?.id;
+
+        await updateJob(companyUid, jobid, {
+          status: "ACCEPTED",
+        });
+       setIsLoading(false);
+      } catch (error) {
+        console.error("Error applying for the job:", error);
+      }
+    };
+
+    const handleDeclineJob = async (jobid) => {
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        const companyUid = jobs.find((job) =>
+          job.jobs.find((sjob) => sjob.jobUid === jobid)
+        )?.id;
+
+        await updateJob(companyUid, jobid, {
+          status: "REJECTED",
+        });
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error applying for the job:", error);
+      }
+    };
     return (
       <div className="h-full relative p-8 ml-64 w-full">
         <table className="divide-y divide-gray-200 bg-gray-300 w-full rounded-md">
@@ -102,10 +162,10 @@ const Table = ({ data }) => {
                 Email
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Contact Number
+                {lastSegment === "jobs" ? "Limit" : "Contact Number"}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Role
+                {lastSegment === "jobs" ? "Status" : "Role"}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Action
@@ -113,14 +173,21 @@ const Table = ({ data }) => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {data && data.length > 0 ? (
-              data.map((user, index) => (
+            {paginatedData && paginatedData.length > 0 ? (
+              paginatedData.map((user, index) => (
                 <tr key={index}>
-                  <td className="p-3 whitespace-nowrap">{user.role === "COMPANY" ? user.companyname : user.firstname + " " + user.lastname}</td>
+                  <td className="p-3 whitespace-nowrap">{lastSegment === "companies" ? user.companyname : lastSegment === "users" ? user.firstname + " " + user.lastname : user.jobTitle}</td>
                   <td className="p-3 whitespace-nowrap">{user.email}</td>
-                  <td className="p-3 whitespace-nowrap">{user.contactno? user.contactno : "N/A"}</td>
-                  <td className="p-3 whitespace-nowrap">{user.role}</td>
-                  <td className="p-3 whitespace-nowrap">
+                  <td className="p-3 whitespace-nowrap">{lastSegment === "jobs" ? user.limit : user.contactno? user.contactno : "N/A"}</td>
+                  <td className="p-3 whitespace-nowrap">{lastSegment === "jobs"? user.status : user.role}</td>
+                  {lastSegment === "jobs" ? (<td className="p-3 whitespace-nowrap">
+                    <button onClick={()=>handleAcceptJob(user.jobUid)} className="px-3 py-1 font-medium text-white bg-green-600 rounded-md hover:bg-green-500 focus:outline-none focus:shadow-outline-green active:bg-green-600 transition duration-150 ease-in-out">
+                    {isLoading ? <l-line-spinner color="white" size="15" speed="1" /> : "Accept"}
+                    </button>
+                    <button onClick={()=>handleDeclineJob(user.jobUid)} className="ml-2 px-3 py-1 font-medium text-white bg-red-600 rounded-md hover:bg-red-500 focus:outline-none focus:shadow-outline-red active:bg-red-600 transition duration-150 ease-in-out">
+                    {isLoading ? <l-line-spinner color="white" size="15" speed="1" /> : "Reject"}
+                    </button>
+                  </td>) : (<td className="p-3 whitespace-nowrap">
                     <button onClick={()=> handleEditModal(user.uid)} className="px-3 py-1 font-medium text-white bg-blue-600 rounded-md hover:bg-blue-500 focus:outline-none focus:shadow-outline-blue active:bg-blue-600 transition duration-150 ease-in-out">
                       Edit
                     </button>
@@ -128,6 +195,9 @@ const Table = ({ data }) => {
                       Delete
                     </button>
                   </td>
+                  )
+                  }
+                  
                 </tr>
               ))
             ) : (
@@ -253,6 +323,22 @@ const Table = ({ data }) => {
                 </div>
                 </>
             )}
+            {/* Pagination */}
+            <div className="flex justify-center mt-4">
+              {Array.from({ length: totalPages }, (_, index) => (
+                <button
+                  key={index}
+                  className={`px-3 py-1 mx-1 rounded-md ${
+                    currentPage === index + 1
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                  onClick={() => handlePageChange(index + 1)}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
       </div>
     );
   };

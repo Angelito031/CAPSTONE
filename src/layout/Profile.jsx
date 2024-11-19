@@ -4,7 +4,7 @@ import ProfileDescription from '../components/ProfileDescription';
 import ProfileButtons from '../components/ProfileButtons';
 import Header from '../layout/Header';
 import Footer from './Footer';
-import univ from "../assets/univ.jpg";
+import univ from "../assets/coding.jpg";
 import Resume from '../components/Resume';
 import React, { useState } from 'react';
 import { useAuthStore } from '../store/store';

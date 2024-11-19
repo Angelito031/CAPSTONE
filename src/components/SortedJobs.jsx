@@ -1,68 +1,96 @@
-import React, { useState, useEffect } from 'react';
-import Header from '../layout/Header';
-import Footer from '../layout/Footer';
-import Job from '../components/Job';
-import { useSearchStore, useJobStore } from '../store/store';
-import { useNavigate, useLocation } from 'react-router-dom';
-import SearchBox from '../components/SearchBox';
+import React, { useState, useEffect, useMemo } from "react";
+import Header from "../layout/Header";
+import Footer from "../layout/Footer";
+import Job from "../components/Job";
+import { useJobStore, useAuthStore } from "../store/store";
+import { useNavigate, useLocation } from "react-router-dom";
+import SearchBox from "../components/SearchBox";
+import Fuse from "fuse.js";
 
 const SortedJobs = () => {
-  const { searchQuery, setSearchQuery, search } = useSearchStore();
+  const { user } = useAuthStore();
   const { jobs, fetchJobs } = useJobStore();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false);
-  const [flattenedJobs, setFlattenedJobs] = useState([]);
   const location = useLocation();
-  const pathSegments = location.pathname.split('/');
+  const pathSegments = location.pathname.split("/");
   const lastSegment = pathSegments[pathSegments.length - 1];
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [filteredJobs, setFilteredJobs] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Extract user skills
+  const userSkills = useMemo(() => user?.resume?.skills || [], [user]);
+
+  // Flatten and filter jobs
+  const acceptedJobs = useMemo(() => {
+    return jobs.flatMap((job) => job.jobs || []).filter((job) => job.status === "ACCEPTED");
+  }, [jobs]);
+
+  // Fetch jobs on mount
   useEffect(() => {
-    setIsLoading(true);
     const fetchJobData = async () => {
-        try {
-          await fetchJobs();
-      
-          const flattenedJobs = jobs.flatMap((job) => job.jobs || []);
-          const sortedJobs = [...flattenedJobs].sort((a, b) => {
-            const aApplicants = a.applicants || [];
-            const bApplicants = b.applicants || [];
-            return lastSegment === 'asc' ? aApplicants.length - bApplicants.length : bApplicants.length - aApplicants.length;
-          });
-      
-          setFlattenedJobs(sortedJobs);
-        } catch (error) {
-          console.error('Error fetching jobs:', error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
+      try {
+        setIsLoading(true);
+        await fetchJobs();
+      } catch (error) {
+        console.error("Error fetching jobs:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
     fetchJobData();
-  }, [fetchJobs, jobs]); // Dependency on fetchJobs and jobs
+  }, [fetchJobs]);
 
+  // Update filtered jobs based on last segment or recommendations
+  useEffect(() => {
+    let updatedJobs = [...acceptedJobs];
+
+    if (lastSegment === "asc" || lastSegment === "desc") {
+      updatedJobs.sort((a, b) => {
+        const aApplicants = a.applicants || [];
+        const bApplicants = b.applicants || [];
+        return lastSegment === "asc"
+          ? aApplicants.length - bApplicants.length
+          : bApplicants.length - aApplicants.length;
+      });
+    } else if (lastSegment === "rec" && userSkills.length > 0) {
+      // Fuse.js for recommendations
+      const fuse = new Fuse(acceptedJobs, {
+        keys: ["skills", "jobTitle", "jobDescription", "location"],
+        threshold: 0.4,
+      });
+
+      const recommendations = fuse.search(userSkills.join(" "));
+      updatedJobs = recommendations.map((result) => result.item);
+    }
+
+    setFilteredJobs(updatedJobs);
+  }, [acceptedJobs, lastSegment, userSkills]);
+
+  // Handle search input change
   const handleInputChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
-  const handleSubmit = async (event) => {
+  // Perform search based on query
+  const handleSubmit = (event) => {
     event.preventDefault();
-    setIsLoading(true);
-    try {
-      await search(searchQuery);
-      navigate(`/jobs/search/${searchQuery}`);
-    } catch (error) {
-      console.error('Error during search:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    if (!searchQuery) return;
+
+    const fuse = new Fuse(acceptedJobs, {
+      keys: ["skills", "jobTitle", "jobDescription", "location"],
+      threshold: 0.4,
+    });
+
+    const results = fuse.search(searchQuery);
+    setFilteredJobs(results.map((result) => result.item));
   };
 
-  const handleCategoryChange = async (event) => {
-    event.preventDefault();
-    const category = event.target.value;
-    setIsLoading(true);
-    navigate(`/jobs/filter/${category}`);
-    setIsLoading(false);
+  // Navigate to category filter
+  const handleCategoryChange = (event) => {
+    navigate(`/jobs/filter/${event.target.value}`);
   };
 
   return (
@@ -96,8 +124,10 @@ const SortedJobs = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {isLoading ? (
                 <div className="w-full text-center text-gray-500">Loading...</div>
-              ) : flattenedJobs && flattenedJobs.length > 0 ? (
-                flattenedJobs.map((job) => <Job key={job.id} {...job} />)
+              ) : filteredJobs.length > 0 ? (
+                filteredJobs.map((job, index) => (
+                  <Job key={job.jobUid || index} {...job} />
+                ))
               ) : (
                 <div className="w-full text-center text-gray-500">
                   No jobs available.

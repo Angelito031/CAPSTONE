@@ -107,7 +107,7 @@ function CreateForm() {
                             onChange={handleChange}
                         />
                     </FormGroup>
-                ) : (
+                ) : lastSegment === "company" ? (
                     <CreateInputField
                         type="text"
                         name="floating_company_name"
@@ -116,7 +116,7 @@ function CreateForm() {
                         value={formData.floating_company_name}
                         onChange={handleChange}
                     />
-                )}
+                ) : null}
                 <button
                     type="submit"
                     disabled={isLoading}

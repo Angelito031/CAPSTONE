@@ -56,7 +56,7 @@ const router = createBrowserRouter([
     path: "/jobs/search/:searchQuery",
     element: 
     <ProtectedRoute requiredRole="STUDENT">
-      <Jobs />
+      <SortedJobs />
     </ProtectedRoute>,
     errorElement: <ErrorPage />,
   },
@@ -205,6 +205,14 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
   },
   {
+    path: "/admin/create/admin",
+    element: 
+    <ProtectedRoute requiredRole={"SADMIN"}>
+      <AdminCreateAccount/>
+    </ProtectedRoute>,
+    errorElement: <ErrorPage />,
+  },
+  {
     path: "/login",
     element: <Login />,
     errorElement: <ErrorPage />,
@@ -218,7 +226,7 @@ const router = createBrowserRouter([
     path: "/forgot",
     element: <ForgotPassword />,
     errorElement: <ErrorPage />,
-  }
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
