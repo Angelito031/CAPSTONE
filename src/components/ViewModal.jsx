@@ -31,7 +31,7 @@ const ViewModal = ({ isOpen, onClose, initialData }) => {
         {/* Job Description */}
         <div className="mb-4">
           <label className="block mb-1">Description</label>
-          <pre className="w-full p-2 border rounded">{initialData?.jobDescription || 'N/A'}</pre>
+          <pre className="w-full p-2 border rounded text-wrap">{initialData?.jobDescription || 'N/A'}</pre>
         </div>
 
         {/* Limit and Location */}
