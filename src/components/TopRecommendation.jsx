@@ -10,8 +10,6 @@ const TopRecommendation = () => {
   const { user } = useAuthStore();
   const userSkills = user?.resume?.skills || [];
 
-  console.log("User Skills:", userSkills); // Debugging log for user skills
-
   // Fetch jobs once when the component mounts
   useEffect(() => {
     fetchJobs();
@@ -26,11 +24,6 @@ const TopRecommendation = () => {
     [jobs]
   );
 
-  // Debugging log for accepted jobs
-  useEffect(() => {
-    console.log("Accepted Jobs:", acceptedJobs);
-  }, [acceptedJobs]);
-
   // Perform job filtering using Fuse.js
   useEffect(() => {
     if (acceptedJobs.length > 0 && userSkills.length > 0) {
@@ -43,9 +36,6 @@ const TopRecommendation = () => {
         skills: job.skills.map((skill) => skill.toLowerCase()),
       }));
 
-      console.log("Normalized User Skills:", normalizedUserSkills); // Debugging log
-      console.log("Normalized Jobs:", normalizedJobs); // Debugging log
-
       const fuse = new Fuse(normalizedJobs, {
         keys: ["skills", "jobTitle", "jobDescription", "location"],
         threshold: 0.5, // Adjust threshold for fuzziness
@@ -53,8 +43,6 @@ const TopRecommendation = () => {
 
       const searchQuery = normalizedUserSkills.join(" "); // Combine normalized user skills
       const filtered = fuse.search(searchQuery);
-
-      console.log("Filtered Results:", filtered); // Debugging log for filtered results
 
       const topFilteredJobs = filtered.map((result) => result.item).slice(0, 5); // Limit to top 5 jobs
       setFilteredJobs(topFilteredJobs);
