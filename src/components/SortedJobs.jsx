@@ -21,12 +21,12 @@ const SortedJobs = () => {
 
   // Extract user skills
   const userSkills = useMemo(() => user?.resume?.skills || [], [user]);
-
+  console.log(userSkills);
   // Flatten and filter jobs
   const acceptedJobs = useMemo(() => {
     return jobs.flatMap((job) => job.jobs || []).filter((job) => job.status === "ACCEPTED");
   }, [jobs]);
-
+  console.log(acceptedJobs);
   // Fetch jobs on mount
   useEffect(() => {
     const fetchJobData = async () => {
@@ -56,14 +56,24 @@ const SortedJobs = () => {
           : bApplicants.length - aApplicants.length;
       });
     } else if (lastSegment === "rec" && userSkills.length > 0) {
-      // Fuse.js for recommendations
-      const fuse = new Fuse(acceptedJobs, {
+      // Normalize skills to handle case sensitivity
+      const normalizedUserSkills = userSkills.map((skill) =>
+        skill.toLowerCase()
+      );
+      const normalizedJobs = acceptedJobs.map((job) => ({
+        ...job,
+        skills: job.skills.map((skill) => skill.toLowerCase()),
+      }));
+
+      const fuse = new Fuse(normalizedJobs, {
         keys: ["skills", "jobTitle", "jobDescription", "location"],
-        threshold: 0.4,
+        threshold: 0.5, // Adjust threshold for fuzziness
       });
 
-      const recommendations = fuse.search(userSkills.join(" "));
-      updatedJobs = recommendations.map((result) => result.item);
+      const searchQuery = normalizedUserSkills.join(" "); // Combine normalized user skills
+      const filtered = fuse.search(searchQuery);
+
+      updatedJobs = filtered.map((result) => result.item);
     }
 
     setFilteredJobs(updatedJobs);

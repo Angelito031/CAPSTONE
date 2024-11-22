@@ -1,128 +1,108 @@
 import React, { useState, useEffect, useMemo } from "react";
-import Header from "./Header";
-import Footer from "./Footer";
+import Header from "../layout/Header";
+import Footer from "../layout/Footer";
 import Job from "../components/Job";
-import Fuse from "fuse.js";
 import { useJobStore, useAuthStore } from "../store/store";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import SearchBox from "../components/SearchBox";
+import Fuse from "fuse.js";
 
 const Jobs = () => {
-  const { jobs, fetchJobs } = useJobStore(); // Zustand action for fetching jobs
   const { user } = useAuthStore();
+  const { jobs, fetchJobs } = useJobStore();
   const navigate = useNavigate();
+  const location = useLocation();
+  const pathSegments = location.pathname.split("/");
+  const lastSegment = pathSegments[pathSegments.length - 1];
 
   const [isLoading, setIsLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [filteredJobs, setFilteredJobs] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const userSkills = user?.resume?.skills || [];
-
-  // Memoize flattened and accepted jobs for better performance
-  const flattenedJobs = useMemo(
-    () => jobs.flatMap((job) => job.jobs || []),
-    [jobs]
-  );
-
-  const acceptedJobs = useMemo(
-    () => flattenedJobs.filter((job) => job.status === "ACCEPTED"),
-    [flattenedJobs]
-  );
-
-  // Fetch jobs on component mount
+  // Extract user skills
+  const userSkills = useMemo(() => user?.resume?.skills || [], [user]);
+  console.log(userSkills);
+  // Flatten and filter jobs
+  const acceptedJobs = useMemo(() => {
+    return jobs.flatMap((job) => job.jobs || []).filter((job) => job.status === "ACCEPTED");
+  }, [jobs]);
+  console.log(acceptedJobs);
+  // Fetch jobs on mount
   useEffect(() => {
-    setIsLoading(true);
-    fetchJobs().catch((error) => console.error("Error fetching jobs:", error)).finally(() => setIsLoading(false));
+    const fetchJobData = async () => {
+      try {
+        setIsLoading(true);
+        await fetchJobs();
+      } catch (error) {
+        console.error("Error fetching jobs:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchJobData();
   }, [fetchJobs]);
 
-  // Recommendation based on user skills
+  // Update filtered jobs based on last segment or recommendations
   useEffect(() => {
-    if (flattenedJobs.length === 0 || userSkills.length === 0) {
-      setFilteredJobs([]);
-      return;
+    let updatedJobs = [...acceptedJobs];
+
+    if (lastSegment === "asc" || lastSegment === "desc") {
+      updatedJobs.sort((a, b) => {
+        const aApplicants = a.applicants || [];
+        const bApplicants = b.applicants || [];
+        return lastSegment === "asc"
+          ? aApplicants.length - bApplicants.length
+          : bApplicants.length - aApplicants.length;
+      });
+    } else if (lastSegment === "rec" && userSkills.length > 0) {
+      // Normalize skills to handle case sensitivity
+      const normalizedUserSkills = userSkills.map((skill) =>
+        skill.toLowerCase()
+      );
+      const normalizedJobs = acceptedJobs.map((job) => ({
+        ...job,
+        skills: job.skills.map((skill) => skill.toLowerCase()),
+      }));
+
+      const fuse = new Fuse(normalizedJobs, {
+        keys: ["skills", "jobTitle", "jobDescription", "location"],
+        threshold: 0.5, // Adjust threshold for fuzziness
+      });
+
+      const searchQuery = normalizedUserSkills.join(" "); // Combine normalized user skills
+      const filtered = fuse.search(searchQuery);
+
+      updatedJobs = filtered.map((result) => result.item);
     }
 
-    const fuse = new Fuse(flattenedJobs, {
-      keys: ["skills", "jobTitle", "jobDescription", "location"],
-      threshold: 0.5,
-    });
+    setFilteredJobs(updatedJobs);
+  }, [acceptedJobs, lastSegment, userSkills]);
 
-    const results = fuse.search(userSkills.join(" "));
-    setFilteredJobs(results.map((result) => result.item));
-  }, [flattenedJobs, userSkills]);
-
+  // Handle search input change
   const handleInputChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
-  const handleSearchSubmit = async (event) => {
+  // Perform search based on query
+  const handleSubmit = (event) => {
     event.preventDefault();
-    setIsLoading(true);
+    if (!searchQuery) return;
 
-    try {
-      const fuse = new Fuse(flattenedJobs, {
-        keys: ["skills", "jobTitle", "jobDescription", "location"],
-        threshold: 0.3,
-      });
+    const fuse = new Fuse(acceptedJobs, {
+      keys: ["skills", "jobTitle", "jobDescription", "location"],
+      threshold: 0.4,
+    });
 
-      const results = fuse.search(searchQuery);
-      setFilteredJobs(results.map((result) => result.item));
-      navigate(`/jobs/search/${searchQuery}`);
-    } catch (error) {
-      console.error("Error during search:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    const results = fuse.search(searchQuery);
+    setFilteredJobs(results.map((result) => result.item));
   };
 
-  const handleCategoryChange = async (event) => {
-    const selectedCategory = event.target.value;
-    setIsLoading(true);
-
-    try {
-      let filtered = [];
-
-      if (selectedCategory === "rec") {
-        if (acceptedJobs.length > 0 && userSkills.length > 0) {
-          // Normalize skills to handle case sensitivity
-          const normalizedUserSkills = userSkills.map((skill) =>
-            skill.toLowerCase()
-          );
-          const normalizedJobs = acceptedJobs.map((job) => ({
-            ...job,
-            skills: job.skills.map((skill) => skill.toLowerCase()),
-          }));
-    
-          const fuse = new Fuse(normalizedJobs, {
-            keys: ["skills", "jobTitle", "jobDescription", "location"],
-            threshold: 0.5, // Adjust threshold for fuzziness
-          });
-    
-          const searchQuery = normalizedUserSkills.join(" "); // Combine normalized user skills
-          const filtered = fuse.search(searchQuery);
-          const topFilteredJobs = filtered.map((result) => result.item);
-          setFilteredJobs(topFilteredJobs);
-        } else {
-          console.log("No matching jobs or skills available."); // Debugging log for no matches
-          setFilteredJobs([]); // Reset if no matching jobs or skills
-        }
-      } else if (selectedCategory === "asc") {
-        filtered = [...flattenedJobs].sort((a, b) => a.jobTitle.localeCompare(b.jobTitle));
-      } else if (selectedCategory === "desc") {
-        filtered = [...flattenedJobs].sort((a, b) => b.jobTitle.localeCompare(a.jobTitle));
-      } else {
-        filtered = flattenedJobs;
-      }
-
-      setFilteredJobs(filtered);
-      navigate(`/jobs/filter/${selectedCategory}`);
-    } catch (error) {
-      console.error("Error during category filtering:", error);
-    } finally {
-      setIsLoading(false);
-    }
+  // Navigate to category filter
+  const handleCategoryChange = (event) => {
+    navigate(`/jobs/filter/${event.target.value}`);
   };
-console.log(filteredJobs);
+
   return (
     <div className="App">
       <Header />
@@ -144,7 +124,7 @@ console.log(filteredJobs);
               <SearchBox
                 searchQuery={searchQuery}
                 handleInputChange={handleInputChange}
-                handleSubmit={handleSearchSubmit}
+                handleSubmit={handleSubmit}
                 wsize="lg:w-2/5"
               />
             </div>
@@ -155,7 +135,9 @@ console.log(filteredJobs);
               {isLoading ? (
                 <div className="w-full text-center text-gray-500">Loading...</div>
               ) : filteredJobs.length > 0 ? (
-                filteredJobs.map((job) => <Job key={job.id} {...job} />)
+                filteredJobs.map((job, index) => (
+                  <Job key={job.jobUid || index} {...job} />
+                ))
               ) : (
                 <div className="w-full text-center text-gray-500">
                   No jobs available.
