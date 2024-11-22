@@ -50,7 +50,7 @@ const Profile = () => {
                         <section className="px-16">
                             <div className="relative p-8 bg-gray-50 shadow-lg shadow-gray-400 mt-3">
                                 <div>
-                                    <img src={univ} alt="Profile Background" className='w-full h-60' />
+                                    <img src={univ} alt="Profile Background" className='w-full h-30 lg:h-60' />
                                 </div>
                                 <div className='flex lg:items-center flex-wrap'>
                                     <ProfileButtons setIsResumeOpen={setIsResumeOpen} />

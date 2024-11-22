@@ -1,9 +1,10 @@
 import React from "react"
+import { useAuthStore } from "../store/store"
 
 const ResumeSkills = ({resume}) => {
-
+  const { user } = useAuthStore()
   // Handle case where user or resume is undefined
-  const skillsList = resume?.skills || []
+  const skillsList = user?.resume ?  user.resume?.skills : resume?.skills || []
 
   return (
     <div className="py-3">

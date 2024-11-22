@@ -19,15 +19,11 @@ const SortedJobs = () => {
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Extract user skills
   const userSkills = useMemo(() => user?.resume?.skills || [], [user]);
-  console.log(userSkills);
-  // Flatten and filter jobs
   const acceptedJobs = useMemo(() => {
     return jobs.flatMap((job) => job.jobs || []).filter((job) => job.status === "ACCEPTED");
   }, [jobs]);
-  console.log(acceptedJobs);
-  // Fetch jobs on mount
+
   useEffect(() => {
     const fetchJobData = async () => {
       try {
@@ -43,7 +39,6 @@ const SortedJobs = () => {
     fetchJobData();
   }, [fetchJobs]);
 
-  // Update filtered jobs based on last segment or recommendations
   useEffect(() => {
     let updatedJobs = [...acceptedJobs];
 
@@ -56,10 +51,7 @@ const SortedJobs = () => {
           : bApplicants.length - aApplicants.length;
       });
     } else if (lastSegment === "rec" && userSkills.length > 0) {
-      // Normalize skills to handle case sensitivity
-      const normalizedUserSkills = userSkills.map((skill) =>
-        skill.toLowerCase()
-      );
+      const normalizedUserSkills = userSkills.map((skill) => skill.toLowerCase());
       const normalizedJobs = acceptedJobs.map((job) => ({
         ...job,
         skills: job.skills.map((skill) => skill.toLowerCase()),
@@ -67,24 +59,19 @@ const SortedJobs = () => {
 
       const fuse = new Fuse(normalizedJobs, {
         keys: ["skills", "jobTitle", "jobDescription", "location"],
-        threshold: 0.5, // Adjust threshold for fuzziness
+        threshold: 0.5,
       });
 
-      const searchQuery = normalizedUserSkills.join(" "); // Combine normalized user skills
+      const searchQuery = normalizedUserSkills.join(" ");
       const filtered = fuse.search(searchQuery);
-
       updatedJobs = filtered.map((result) => result.item);
     }
 
     setFilteredJobs(updatedJobs);
   }, [acceptedJobs, lastSegment, userSkills]);
 
-  // Handle search input change
-  const handleInputChange = (event) => {
-    setSearchQuery(event.target.value);
-  };
+  const handleInputChange = (event) => setSearchQuery(event.target.value);
 
-  // Perform search based on query
   const handleSubmit = (event) => {
     event.preventDefault();
     if (!searchQuery) return;
@@ -98,23 +85,22 @@ const SortedJobs = () => {
     setFilteredJobs(results.map((result) => result.item));
   };
 
-  // Navigate to category filter
   const handleCategoryChange = (event) => {
     navigate(`/jobs/filter/${event.target.value}`);
   };
 
   return (
-    <div className="App">
+    <div className="App flex flex-col min-h-screen">
       <Header />
-      <main>
+      <main className="flex-1">
         <section className="text-gray-600 body-font">
-          <div className="container px-5 py-4 mx-auto">
-            <div className="flex justify-between gap-4 lg:gap-0">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 lg:gap-6">
               <select
                 name="category"
                 id="category"
                 onChange={handleCategoryChange}
-                className="lg:w-1/4 w-fit rounded border border-gray-300 bg-gray-100 bg-opacity-50 px-3 py-1 text-base leading-8 text-gray-700 outline-none transition-colors duration-200 ease-in-out focus:border-indigo-500 focus:bg-transparent focus:ring-2 focus:ring-indigo-200"
+                className="w-full sm:w-auto lg:w-1/4 rounded border border-gray-300 bg-gray-100 px-3 py-2 text-gray-700 outline-none focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-200"
               >
                 <option value="all">ALL</option>
                 <option value="asc">Ascending</option>
@@ -125,26 +111,27 @@ const SortedJobs = () => {
                 searchQuery={searchQuery}
                 handleInputChange={handleInputChange}
                 handleSubmit={handleSubmit}
-                wsize="lg:w-2/5"
+                wsize="w-full sm:w-3/5 lg:w-2/5"
               />
             </div>
           </div>
 
-          <div className="container px-4 mx-auto my-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 my-4 ml-12">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-center">
               {isLoading ? (
-                <div className="w-full text-center text-gray-500">Loading...</div>
+                <div className="col-span-full text-center text-gray-500">Loading...</div>
               ) : filteredJobs.length > 0 ? (
                 filteredJobs.map((job, index) => (
                   <Job key={job.jobUid || index} {...job} />
                 ))
               ) : (
-                <div className="w-full text-center text-gray-500">
+                <div className="col-span-full text-center text-gray-500">
                   No jobs available.
                 </div>
               )}
             </div>
           </div>
+
         </section>
       </main>
       <Footer />

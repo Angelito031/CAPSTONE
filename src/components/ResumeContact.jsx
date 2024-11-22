@@ -1,8 +1,10 @@
 import { FaPhoneAlt, FaEnvelope, FaFacebookF, FaTwitter } from 'react-icons/fa';
 import React from 'react'
+import { useAuthStore } from '../store/store';
 
 const ResumeContact = ({resume}) => {
-  const userresume = resume ? resume : {};  
+  const { user } = useAuthStore()
+  const userresume = user?.resume ? user.resume : resume || [];  
 
   return (
     <div className="py-3">

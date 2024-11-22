@@ -74,13 +74,13 @@ const CompanyTableJobs = ({ user }) => {
   };
 
   return (
-    <div className="h-full pt-8 px-4 relative ml-64 w-full">
+    <div className="h-full pt-8 px-4 relative sm:ml-32 lg:ml-14 w-full">
       <table className="divide-y divide-gray-200 bg-gray-300 w-full rounded-md">
         <thead>
           <tr>
             <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Job Title</th>
-            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">View Full Job</th>
-            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:block">View Full Job</th>
+            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Status</th>
             <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Applicants</th>
             <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
           </tr>
@@ -89,8 +89,10 @@ const CompanyTableJobs = ({ user }) => {
           {paginatedData && paginatedData.length > 0 ? (
             paginatedData.map((job, index) => (
               <tr key={index}>
-                <td className="p-3 whitespace-nowrap text-center">{job.jobTitle || "N/A"}</td>
                 <td className="p-3 whitespace-nowrap text-center">
+                  {job.jobTitle ? job.jobTitle.slice(0, 10) + (job.jobTitle.length > 10 ? "..." : "") : "N/A"}
+                </td>
+                <td className="p-3 whitespace-nowrap text-center hidden lg:block">
                   <button
                     className="text-blue-600 hover:underline m-auto flex items-center gap-1"
                     onClick={() => handleViewClick(job)}
@@ -98,7 +100,7 @@ const CompanyTableJobs = ({ user }) => {
                     <FaEye /> View
                   </button>
                 </td>
-                <td className="p-3 whitespace-nowrap text-center">{job.status}</td>
+                <td className="p-3 whitespace-nowrap text-center hidden sm:table-cell">{job.status}</td>
                 <td className="p-3 whitespace-nowrap text-center">{job.applicants ? job.applicants.length : 0} / {job.limit}</td>
                 <td className="p-3 whitespace-nowrap text-center">
                   <button

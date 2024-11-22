@@ -31,7 +31,7 @@ const Table = ({ data }) => {
     lineSpinner.register()
 
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5; // Number of jobs per page
+    const itemsPerPage = 10; // Number of jobs per page
     const totalPages = Math.ceil(data.length / itemsPerPage);
   
 

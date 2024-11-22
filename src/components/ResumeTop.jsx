@@ -2,11 +2,11 @@ import userdefaultimg from "../assets/user-default-icon.jpg";
 import React from "react";
 import { useAuthStore } from "../store/store";
 
-const ResumeTop = () => {
+const ResumeTop = ({resume}) => {
   const {user} = useAuthStore()
-  const resume = user?.resume
-  const userresume = resume ? resume : {};
-  const resumeimage = resume?.image || userdefaultimg
+  const resumes = user?.resume ? user.resume : resume
+  const userresume = resumes ? resumes : {};
+  const resumeimage = resumes?.image || userdefaultimg
 
   return (
     <div className="flex rounded-t-lg bg-gray-700 sm:px-2 w-full text-white">

@@ -1,7 +1,9 @@
 import React from "react";
+import { useAuthStore } from "../store/store";
 
 const ResumeProjects = ({resume}) => {
-  const projectList = resume?.projects || []; // Default to empty array
+  const { user } = useAuthStore()
+  const projectList = user?.resume ? user.resume.projects : resume?.projects || []; // Default to empty array
 
   const formatLink = (link) => {
     if (!link) return '';

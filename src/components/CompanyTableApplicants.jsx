@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useJobStore, useUserStore } from "../store/store";
-import { FaEye } from "react-icons/fa";
+import { FaCheck, FaEye } from "react-icons/fa";
+import { ImCross } from "react-icons/im";
 import ViewResume from "./ViewResume";
 import { dotWave } from "ldrs";
 import axios from "axios";
@@ -106,23 +107,23 @@ const CompanyTableApplicants = ({ user }) => {
   };
 
   return (
-    <div className="h-full pt-8 px-4 relative ml-64 w-full">
+    <div className="h-full pt-8 px-4 relative sm:ml-32 lg:ml-14 w-full">
       <table className="divide-y divide-gray-200 bg-gray-300 w-full rounded-md">
         <thead>
           <tr>
+            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:block">
+              Job Title
+            </th>
             <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
               Applicant Name
+            </th>
+            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:block">
+              View Resume
             </th>
             <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
               Email
             </th>
-            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Job Title
-            </th>
-            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-              View Resume
-            </th>
-            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:block">
               Status
             </th>
             <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -134,47 +135,44 @@ const CompanyTableApplicants = ({ user }) => {
           {paginatedApplicants.length > 0 ? (
             paginatedApplicants.map((applicant, index) => (
               <tr key={index}>
-                <td className="p-3 whitespace-nowrap text-center">
-                  {applicant.name || "N/A"}
-                </td>
-                <td className="p-3 whitespace-nowrap text-center">
-                  {applicant.email || "N/A"}
-                </td>
-                <td className="p-3 whitespace-nowrap text-center">
+                 <td className="p-3 whitespace-nowrap text-center hidden lg:block">
                   {applicant.jobTitle || "N/A"}
                 </td>
                 <td className="p-3 whitespace-nowrap text-center">
-                  <button
-                    className="text-blue-600 hover:underline m-auto flex items-center gap-1"
-                    onClick={() => handleViewClick(applicant)}
-                  >
+                  {applicant.name || "N/A"}
+                </td>
+                <td className="p-3 whitespace-nowrap text-center hidden lg:block">
+                  <button className="text-blue-600 hover:underline m-auto flex items-center gap-1" onClick={()=>handleViewClick(applicant)}>
                     <FaEye /> View
                   </button>
                 </td>
                 <td className="p-3 whitespace-nowrap text-center">
-                  {applicant.status || "Pending"}
+                  {applicant.email ? applicant.email.slice(0, 10) + (applicant.name.length > 10 ? "..." : "") : "N/A"}
+                </td>
+                <td className="p-3 whitespace-nowrap text-center hidden sm:table-cell">
+                  <span className="text-sm">{applicant.status || "Pending"}</span>
                 </td>
                 <td className="p-3 whitespace-nowrap text-center">
                   <button
-                    className="px-3 py-1 font-medium text-white bg-green-600 rounded-md hover:bg-green-500 focus:outline-none focus:shadow-outline-blue active:bg-green-600 transition duration-150 ease-in-out"
+                    className="px-3 py-2 lg:py-1 font-medium text-white bg-green-600 rounded-md hover:bg-green-500 focus:outline-none focus:shadow-outline-blue active:bg-green-600 transition duration-150 ease-in-out"
                     onClick={() => handleStatusUpdate(applicant.uid, "ACCEPTED")}
                     disabled={!!loadingApplicant[applicant.uid]}
                   >
                     {loadingApplicant[applicant.uid] ? (
-                      <l-dot-wave color="white" size="30" speed="1" />
+                      <l-dot-wave color="white" size="20" speed="1" />
                     ) : (
-                      "Accept"
+                      <FaCheck/>
                     )}
                   </button>
                   <button
-                    className="ml-2 px-3 py-1 font-medium text-white bg-red-600 rounded-md hover:bg-red-500 focus:outline-none focus:shadow-outline-red active:bg-red-600 transition duration-150 ease-in-out"
+                    className="ml-2 px-3 py-2 lg:py-1 font-medium text-white bg-red-600 rounded-md hover:bg-red-500 focus:outline-none focus:shadow-outline-red active:bg-red-600 transition duration-150 ease-in-out"
                     onClick={() => handleStatusUpdate(applicant.uid, "REJECTED")}
                     disabled={!!loadingApplicant[applicant.uid]}
                   >
                     {loadingApplicant[applicant.uid] ? (
-                      <l-dot-wave color="white" size="30" speed="1" />
+                      <l-dot-wave color="white" size="20" speed="1" />
                     ) : (
-                      "Reject"
+                      <ImCross/>
                     )}
                   </button>
                 </td>
@@ -182,7 +180,7 @@ const CompanyTableApplicants = ({ user }) => {
             ))
           ) : (
             <tr>
-              <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+              <td colSpan="4" className="px-6 py-4 text-center text-gray-500">
                 NO DATA AVAILABLE
               </td>
             </tr>

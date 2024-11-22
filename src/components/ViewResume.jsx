@@ -6,7 +6,7 @@ import ResumeTop from './ResumeTop'
 
 const ViewResume = ({user}) => {
   const resume = user?.resume
-
+ 
   return (
     <>
     <ResumeTop resume={resume}/>
