@@ -49,7 +49,7 @@ const ViewModal = ({ isOpen, onClose, initialData }) => {
         {/* Skills */}
         <div className="mb-4">
           <label className="block mb-1">Skills</label>
-          <pre className="w-full p-2 border rounded">{initialData?.skills ? initialData.skills.join(', ') : 'N/A'}</pre>
+          <pre className="w-full p-2 border rounded text-wrap">{initialData?.skills ? initialData.skills.join(', ') : 'N/A'}</pre>
         </div>
 
         {/* Action Button */}
