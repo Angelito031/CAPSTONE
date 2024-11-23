@@ -334,16 +334,17 @@ const useUserStore = create((set) => ({
     try {
       const userRef = doc(db, "users", auth.currentUser.uid);
       const imageRef = ref(storage, `images/${auth.currentUser.uid}/resume/${image.name}`);
+
+      if(imageRef){
+        await uploadBytes(imageRef, image).then(async (snapshot) => {
+          const downloadURL = await getDownloadURL(snapshot.ref);
+          resume.image = downloadURL;
+        });
+      }
       
-      await uploadBytes(imageRef, image).then(async (snapshot) => {
-        const downloadURL = await getDownloadURL(snapshot.ref);
-        resume.image = downloadURL;
-  
-        await updateDoc(userRef, { resume });
-      });
-      
+      await updateDoc(userRef, { resume });
     } catch (error) {
-      console.error("Failed to update user", error.message, error.code);
+      console.error("Failed to update user", error.message, error.code, error);
       // Handle specific error cases if needed
       if (error.code === "auth/requires-recent-login") {
         console.error("The user needs to re-authenticate before this operation can be executed.");

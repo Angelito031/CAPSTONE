@@ -25,15 +25,16 @@ const ResumeEdit = ({ setIsResumeOpen, setIsEditOpen}) => {
   });
 
   useEffect(() => {
-    if (user.resume) {
+    if (user?.resume) {
       setCredentials({
         resume: {
           ...user.resume,
           skills: user.resume.skills || [],
-          projects: Array.isArray(user.resume.projects) ? user.resume.projects : []
-        }
+          projects: Array.isArray(user.resume.projects) ? user.resume.projects : [],
+        },
       });
     }
+  
   }, [user]);
 
   const handleInputChange = (e) => {
@@ -49,11 +50,15 @@ const ResumeEdit = ({ setIsResumeOpen, setIsEditOpen}) => {
     }));
   };
 
-  const handleImageChange = (e) => { 
+  const handleImageChange = (e) => {
     if (e.target.files[0]) {
+      console.log("Image selected:", e.target.files[0]);
       setImage(e.target.files[0]);
+    } else {
+      console.error("No file selected.");
     }
   };
+  
 
   const handleSkillChange = (index, e) => {
     const { value } = e.target;
@@ -121,12 +126,15 @@ const ResumeEdit = ({ setIsResumeOpen, setIsEditOpen}) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    await updateResume(credentials.resume, image);
+    console.log("Image state before submission:", image);
+    if (!image) {
+      console.warn("No image uploaded, proceeding without it.");
+    }
+    await updateResume(credentials.resume, image || credentials.resume.image);
     await setUser({ ...user, resume: credentials.resume });
-    setIsLoading(false);
     setIsResumeOpen(false);
   };
+  
 
   return (
     <section className="py-10 my-auto">

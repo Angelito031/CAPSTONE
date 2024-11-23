@@ -47,7 +47,6 @@ const TopRecommendation = () => {
       const topFilteredJobs = filtered.map((result) => result.item).slice(0, 5); // Limit to top 5 jobs
       setFilteredJobs(topFilteredJobs);
     } else {
-      console.log("No matching jobs or skills available."); // Debugging log for no matches
       setFilteredJobs([]); // Reset if no matching jobs or skills
     }
   }, [acceptedJobs, userSkills]);
