@@ -13,7 +13,7 @@ const TopRecommendation = () => {
   // Fetch jobs once when the component mounts
   useEffect(() => {
     fetchJobs();
-  }, [fetchJobs]);
+  }, []);
 
   // Memoize flattened and accepted jobs to avoid unnecessary recalculations
   const acceptedJobs = useMemo(
@@ -24,32 +24,43 @@ const TopRecommendation = () => {
     [jobs]
   );
 
-  // Perform job filtering using Fuse.js
+  // Add this new memoized value
+  const normalizedUserSkills = useMemo(
+    () => userSkills.map((skill) => skill.toLowerCase()),
+    [userSkills]
+  );
+
+  // Add this new memoized value
+  const normalizedJobs = useMemo(
+    () => acceptedJobs.map((job) => ({
+      ...job,
+      skills: job.skills.map((skill) => skill.toLowerCase()),
+    })),
+    [acceptedJobs]
+  );
+
+  // Memoize the Fuse instance
+  const fuseInstance = useMemo(() => {
+    if (normalizedJobs.length === 0) return null;
+    return new Fuse(normalizedJobs, {
+      keys: ["skills", "jobTitle", "jobDescription", "location"],
+      threshold: 0.5,
+    });
+  }, [normalizedJobs]);
+
+  // Memoize the search results
+  const searchResults = useMemo(() => {
+    if (!fuseInstance || normalizedUserSkills.length === 0) return [];
+    
+    const searchQuery = normalizedUserSkills.join(" ");
+    const filtered = fuseInstance.search(searchQuery);
+    return filtered.map((result) => result.item).slice(0, 5);
+  }, [fuseInstance, normalizedUserSkills]);
+
+  // Replace the filtering useEffect with a simpler one
   useEffect(() => {
-    if (acceptedJobs.length > 0 && userSkills.length > 0) {
-      // Normalize skills to handle case sensitivity
-      const normalizedUserSkills = userSkills.map((skill) =>
-        skill.toLowerCase()
-      );
-      const normalizedJobs = acceptedJobs.map((job) => ({
-        ...job,
-        skills: job.skills.map((skill) => skill.toLowerCase()),
-      }));
-
-      const fuse = new Fuse(normalizedJobs, {
-        keys: ["skills", "jobTitle", "jobDescription", "location"],
-        threshold: 0.5, // Adjust threshold for fuzziness
-      });
-
-      const searchQuery = normalizedUserSkills.join(" "); // Combine normalized user skills
-      const filtered = fuse.search(searchQuery);
-
-      const topFilteredJobs = filtered.map((result) => result.item).slice(0, 5); // Limit to top 5 jobs
-      setFilteredJobs(topFilteredJobs);
-    } else {
-      setFilteredJobs([]); // Reset if no matching jobs or skills
-    }
-  }, [acceptedJobs, userSkills]);
+    setFilteredJobs(searchResults);
+  }, [searchResults]);
 
   return (
     <section className="body-font text-gray-600 shadow-md">

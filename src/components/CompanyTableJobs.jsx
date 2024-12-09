@@ -25,7 +25,14 @@ const CompanyTableJobs = ({ user }) => {
 
   useEffect(() => {
     const filteredJobs = jobs.find((job) => job.id === user.uid);
-    setData(filteredJobs && filteredJobs.jobs ? filteredJobs.jobs : []);
+    const jobsList = filteredJobs && filteredJobs.jobs ? filteredJobs.jobs : [];
+    // Sort jobs to show PENDING first
+    const sortedJobs = jobsList.sort((a, b) => {
+      if (!a.status || a.status === "PENDING") return -1;
+      if (!b.status || b.status === "PENDING") return 1;
+      return 0;
+    });
+    setData(sortedJobs);
   }, [jobs]);
 
   const handlePageChange = (pageNumber) => {

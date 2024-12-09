@@ -15,7 +15,7 @@ const ResumeProjects = ({resume}) => {
     <div className="py-3">
       <h2 className="text-lg font-poppins font-bold text-gray-700">Projects</h2>
       <div className="border-2 w-20 border-gray-700 my-3"></div>
-      {projectList.length > 0 ? (
+      {projectList?.length > 0 ? (
         <ul className="list-none ml-5">
           {projectList.map((project, index) => (
             <li key={index} className="text-gray-700 mb-4">

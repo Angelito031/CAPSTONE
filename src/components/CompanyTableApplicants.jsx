@@ -25,7 +25,13 @@ const CompanyTableApplicants = ({ user }) => {
     const selectedJob = jobs.find((job) => job.id === user.uid);
     if (selectedJob?.jobs) {
       const allApplicants = selectedJob.jobs.flatMap((job) => job.applicants || []);
-      setApplicantsData(allApplicants);
+      // Sort applicants to show PENDING first
+      const sortedApplicants = allApplicants.sort((a, b) => {
+        if (!a.status || a.status === "PENDING") return -1;
+        if (!b.status || b.status === "PENDING") return 1;
+        return 0; 
+      });
+      setApplicantsData(sortedApplicants);
     }
   }, [jobs, user.uid]);
 
