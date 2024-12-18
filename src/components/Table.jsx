@@ -38,8 +38,16 @@ const Table = ({ data }) => {
     const handlePageChange = (pageNumber) => {
       setCurrentPage(pageNumber);
     };
+
+    const sortedData = [...data].sort((a, b) => {
+      if (lastSegment === "jobs") {
+        if (a.status === "PENDING" && b.status !== "PENDING") return -1;
+        if (a.status !== "PENDING" && b.status === "PENDING") return 1;
+      }
+      return 0; // Keep original order for other statuses
+    });
   
-    const paginatedData = data.slice(
+    const paginatedData = sortedData.slice(
       (currentPage - 1) * itemsPerPage,
       currentPage * itemsPerPage
     );
